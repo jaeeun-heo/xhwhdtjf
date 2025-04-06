@@ -11,4 +11,3 @@ import qrcode
 url = "https://xhwhdtjf-b7n87zyelbtmnhzzjlp6kq.streamlit.app/"
 img = qrcode.make(url)
 img.save("qr_code.png")
-print("✅ QR 코드가 'qr_code.png'로 저장되었습니다!")
