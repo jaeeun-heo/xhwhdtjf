@@ -31,8 +31,29 @@ with col2:
     button_color = "#ff4d4d" if st.session_state.alarm_active else "#e0e0e0"
     text_color = "white" if st.session_state.alarm_active else "black"
 
+    # 커스텀 스타일 버튼 마크업
+    st.markdown(f"""
+        <style>
+        .custom-button {{
+            background-color: {button_color};
+            color: {text_color};
+            font-weight: bold;
+            padding: 0.6em 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }}
+        </style>
+        <form action="" method="post">
+            <button class="custom-button" name="alarm_button" type="submit">{button_label}</button>
+        </form>
+    """, unsafe_allow_html=True)
 
-
+    # 버튼 클릭 처리 (세션 상태 토글)
+    if st.experimental_get_query_params().get("alarm_button") is not None:
+        st.session_state.alarm_active = not st.session_state.alarm_active
 
 
     # 상태에 따라 시각적 피드백
