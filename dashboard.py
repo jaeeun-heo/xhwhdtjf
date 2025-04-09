@@ -26,9 +26,14 @@ if 'alarm_active' not in st.session_state:
 # 오른쪽 상단 버튼 배치
 col1, col2 = st.columns([8, 2])
 with col2:
-    # 버튼 클릭 시 상태 토글
-    if st.button("🚨 경보 울리기"):
-        st.session_state.alarm_active = not st.session_state.alarm_active
+    # 상태에 따라 텍스트 및 배경색 설정
+    button_label = "🚨경보🚨" if st.session_state.alarm_active else "🚨 경보 울리기"
+    button_color = "#ff4d4d" if st.session_state.alarm_active else "#e0e0e0"
+    text_color = "white" if st.session_state.alarm_active else "black"
+
+
+
+
 
     # 상태에 따라 시각적 피드백
     if st.session_state.alarm_active:
