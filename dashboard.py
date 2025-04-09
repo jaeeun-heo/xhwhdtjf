@@ -33,13 +33,11 @@ with col2:
     # 상태에 따라 시각적 피드백
     if st.session_state.alarm_active:
         st.markdown(
-            "<div style='background-color:#ffdddd; padding:10px; border-radius:5px;'>"
             "📢 <strong>경보가 울렸습니다! 이상 상태를 확인하세요.</strong></div>",
             unsafe_allow_html=True
         )
     else:
         st.markdown(
-            "<div style='background-color:#e0f7fa; padding:10px; border-radius:5px;'>"
             "✅ <strong>경보가 꺼져 있습니다.</strong></div>",
             unsafe_allow_html=True
         )
