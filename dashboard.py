@@ -33,7 +33,7 @@ with col2:
     # 상태에 따라 시각적 피드백
     if st.session_state.alarm_active:
         st.markdown(
-            "📢 <strong>경보를 울리는 중입니다다.</strong></div>",
+            "📢 <strong>경보를 울리는 중입니다.</strong></div>",
             unsafe_allow_html=True
         )
     else:
