@@ -19,26 +19,30 @@ st.title("📊 교량 안전 모니터링 대시보드")
 st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이터를 분석하여 이상을 감지합니다.")
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
 
+# 초기 상태 설정
+if 'alarm_active' not in st.session_state:
+    st.session_state.alarm_active = False
+
 # 오른쪽 상단 버튼 배치
 col1, col2 = st.columns([8, 2])
 with col2:
-    if st.button("🚨 경보 버튼"):
-        st.session_state.alarm_on = not st.session_state.alarm_on
+    # 버튼 클릭 시 상태 토글
+    if st.button("🚨 경보 울리기"):
+        st.session_state.alarm_active = not st.session_state.alarm_active
 
-    # 상태에 따라 메시지/색상 출력
-    if st.session_state.alarm_on:
+    # 상태에 따라 시각적 피드백
+    if st.session_state.alarm_active:
         st.markdown(
-            "<div style='background-color:#ffcccc;padding:10px;border-radius:5px;'>"
-            "📢 <strong>경보가 울리고 있습니다!</strong></div>",
+            "<div style='background-color:#ffdddd; padding:10px; border-radius:5px;'>"
+            "📢 <strong>경보가 울렸습니다! 이상 상태를 확인하세요.</strong></div>",
             unsafe_allow_html=True
         )
     else:
         st.markdown(
-            "<div style='background-color:#ccffcc;padding:10px;border-radius:5px;'>"
-            "✅ <strong>현재 정상 상태입니다.</strong></div>",
+            "<div style='background-color:#e0f7fa; padding:10px; border-radius:5px;'>"
+            "✅ <strong>경보가 꺼져 있습니다.</strong></div>",
             unsafe_allow_html=True
         )
-
 
 # 사이드바
 st.sidebar.header("📂 데이터 업로드")
