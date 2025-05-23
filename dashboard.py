@@ -25,46 +25,43 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 # 데이터 디렉토리 설정
 
-data_dir = os.path.abspath(os.path.join("data", "demo_add"))
-pattern = os.path.join(data_dir, "demo_*_add.csv")
-file_list = glob.glob(pattern)
+data_dir = "data/demo_add"
+file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
 
-st.write(f"데이터 폴더: {data_dir}")
-st.write(f"파일 개수: {len(file_list)}")
+st.title("Sensor Data Visualization")
 
-if len(file_list) == 0:
-    st.warning("분석 파일이 없습니다.")
-else:
-    # 파일 선택 박스
-    file_names = [os.path.basename(f) for f in file_list]
-    selected_file = st.selectbox("분석 파일 선택", file_names)
+### Gyro 그래프 ###
+st.header("1. Gyro vs Position")
+combined_df = pd.DataFrame()
 
-    if selected_file:
-        file_path = os.path.join(data_dir, selected_file)
-        df = pd.read_csv(file_path)
+for file_path in file_list:
+    df = pd.read_csv(file_path)
+    if 'gyro' in df.columns:
+        combined_df = pd.concat([combined_df, df[['position', 'gyro']]], ignore_index=True)
+        plt.plot(df['position'], df['gyro'], alpha=0.35, label=os.path.basename(file_path).split('.')[0])
 
-        st.write(f"### {selected_file} 데이터 미리보기")
-        st.dataframe(df.head())
+combined_df['position_bin'] = (combined_df['position'] / 0.1).round() * 0.1
+gyro_summary = combined_df.groupby('position_bin')['gyro'].mean().reset_index()
+gyro_max = combined_df.groupby('position_bin')['gyro'].max().reset_index()
 
-        # x, y 축 컬럼명은 실제 파일에 맞게 조정하세요
-        if 'position' in df.columns and 'gyro' in df.columns:
-            # 0~2.5m 범위 필터링 (필요 시)
-            df_filtered = df[(df['position'] >= 0) & (df['position'] <= 2.5)]
+# IQR upper bound
+def calc_iqr_upper_bound(group):
+    q1 = group.quantile(0.25)
+    q3 = group.quantile(0.75)
+    return q3 + 1.5 * (q3 - q1)
 
-            st.write("### 자이로 데이터 시각화 (position vs gyro)")
+iqr_upper = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index()
 
-            fig, ax = plt.subplots()
-            ax.plot(df_filtered['position'], df_filtered['gyro'], label='gyro')
-            ax.set_xlabel("position (m)")
-            ax.set_ylabel("gyro")
-            ax.legend()
-            ax.grid(True)
+plt.plot(gyro_summary['position_bin'], gyro_summary['gyro'], color='red', label='Mean Gyro')
+plt.plot(gyro_max['position_bin'], gyro_max['gyro'], color='green', label='Max Gyro')
+plt.plot(iqr_upper['position_bin'], iqr_upper['gyro'], color='orange', linestyle='--', label='IQR Upper Bound')
+plt.xlabel('Position')
+plt.ylabel('Gyro')
+plt.legend()
+plt.grid(True)
+st.pyplot(plt)
 
-            st.pyplot(fig)
-        else:
-            st.info("position 또는 gyro 컬럼이 데이터에 없습니다.")
-
-
+# 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
 
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
