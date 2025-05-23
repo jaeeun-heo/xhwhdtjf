@@ -45,10 +45,9 @@ for file in file_list:
         df['position_bin'] = (df['position'] / 0.1).round() * 0.1
         combined_df = pd.concat([combined_df, df[['position_bin', 'gyro', 'file']]], ignore_index=True)
 
-# 2. position_bin별 평균선 계산
+# 2. 평균선 및 IQR 상한 계산
 mean_line = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
 
-# 3. IQR 상한선 계산 함수
 def calc_iqr_upper_bound(group):
     q1 = group.quantile(0.25)
     q3 = group.quantile(0.75)
@@ -57,10 +56,7 @@ def calc_iqr_upper_bound(group):
 
 iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index(name='upper')
 
-
-
-
-# 0.5 단위 구간 생성
+# 3. 0.5 단위 구간으로 그룹화
 mean_line['bin_group'] = (mean_line['position_bin'] // 0.5) * 0.5
 iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
@@ -70,55 +66,26 @@ iqr_by_bin = iqr_df.groupby('bin_group')['upper'].mean()
 bin_starts = mean_by_bin.index.values
 bin_ends = bin_starts + 0.5
 
-x_vals = mean_line['position_bin']
-mean_vals = mean_line['mean']
-iqr_vals = iqr_df['upper']
-
-# 전체 평균 계산
-overall_mean = mean_line['mean'].mean()
-overall_iqr_upper = iqr_df['upper'].mean()
-
-fig = go.Figure()
-
-# 평균선, 범례에 전체 평균 포함
-fig.add_trace(go.Scatter(
-    x=x_vals,
-    y=mean_vals,
-    mode='lines',
-    name=f'Mean Gyro (Overall: {overall_mean:.3f})',
-    line=dict(color='sky blue')
-))
-
-# IQR 상한선, 범례에 전체 평균 포함
-fig.add_trace(go.Scatter(
-    x=iqr_df['position_bin'],
-    y=iqr_vals,
-    mode='lines',
-    name=f'IQR Upper Bound (Overall: {overall_iqr_upper:.3f})',
-    line=dict(color='orange')
-))
-
-# 예시 summary_table
+# 4. summary_table 구성 (표시용 데이터)
 summary_table = pd.DataFrame({
-    'bin_group': [0.0, 0.5, 1.0, 1.5, 2.0],  # 구간 시작점
+    'bin_group': [0.0, 0.5, 1.0, 1.5, 2.0],
     'Mean of Gyro': [0.82, 0.89, 0.91, 0.85, 0.88],
     'Mean of IQR Upper Bound': [0.93, 0.98, 0.99, 0.95, 0.96]
 })
-
-# 중앙점 계산 (라벨 및 x축 기준)
 summary_table['mid_point'] = summary_table['bin_group'] + 0.25
+summary_table['gyro_label'] = summary_table['Mean of Gyro'].apply(lambda x: f"{x:.2f}")
 
-# 전체 평균 계산
+# 5. 전체 평균 계산
 overall_mean = summary_table['Mean of Gyro'].mean()
 overall_upper = summary_table['Mean of IQR Upper Bound'].mean()
 
-# 그래프 생성
+# 6. 그래프 생성
 fig = go.Figure()
 
 # 평균선
 fig.add_trace(go.Scatter(
     x=summary_table['mid_point'],
-    y=[-0.05] * len(summary_table),  # <-- 여기 수정됨
+    y=summary_table['Mean of Gyro'],
     mode='lines+markers',
     name=f'Mean Gyro (avg={overall_mean:.2f})',
     line=dict(color='blue', width=2)
@@ -133,8 +100,7 @@ fig.add_trace(go.Scatter(
     line=dict(color='orange', dash='dash', width=2)
 ))
 
-# 평균값 라벨 (아래)
-summary_table['gyro_label'] = summary_table['Mean of Gyro'].apply(lambda x: f"{x:.2f}")
+# 평균값 라벨 (아래 표시)
 fig.add_trace(go.Scatter(
     x=summary_table['mid_point'],
     y=[-0.05] * len(summary_table),
@@ -155,62 +121,6 @@ fig.update_layout(
     template='plotly_white',
     font=dict(size=14),
     legend=dict(
-        x=1.05,
-        y=1,
-        traceorder='normal',
-        bgcolor='rgba(0,0,0,0)',
-        bordercolor='rgba(0,0,0,0)'
-    )
-)
-
-# 표시
-fig.show()
-
-# 구간별 평균값 annotation 추가 (글씨 크기 키움)
-for start, end, mean_val, iqr_val in zip(bin_starts, bin_ends, mean_by_bin.values, iqr_by_bin.values):
-    x_pos = (start + end) / 2
-    
-    fig.add_annotation(
-        x=x_pos, y=mean_val,
-        text=f"Mean: {mean_val:.2f}",
-        showarrow=False,
-        yshift=15,
-        font=dict(color='blue', size=16, family="Arial"),
-        align='center',
-        bgcolor='rgba(255,255,255,0.7)',
-        bordercolor='sky blue',
-        borderwidth=1,
-        borderpad=4
-    )
-    fig.add_annotation(
-        x=x_pos, y=iqr_val,
-        text=f"IQR Upper: {iqr_val:.2f}",
-        showarrow=False,
-        yshift=-20,
-        font=dict(color='orange', size=16, family="Arial"),
-        align='center',
-        bgcolor='rgba(255,255,255,0.7)',
-        bordercolor='orange',
-        borderwidth=1,
-        borderpad=4
-    )
-    fig.add_trace(go.Scatter(
-        x=summary_table['mid_point'],
-        y=summary_table['label_y'],
-        mode='text',
-        text=summary_table['label'],
-        textposition='middle center',
-        showlegend=False,
-        textfont=dict(size=12, color='gray')
-    ))
-
-fig.update_layout(
-    title='Gyro Mean and IQR Upper Bound by Position with Interval Labels',
-    xaxis_title='Position (m)',
-    yaxis_title='Gyro',
-    template='plotly_white',
-    yaxis=dict(range=[-0.1, 1.0]),  # y축 범위 0~1.0으로 고정
-    legend=dict(
         x=1.02,
         y=1,
         xanchor='left',
@@ -219,6 +129,7 @@ fig.update_layout(
     )
 )
 
+# 7. Streamlit 출력
 st.plotly_chart(fig, use_container_width=True)
 
 
