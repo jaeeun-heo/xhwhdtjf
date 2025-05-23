@@ -36,8 +36,6 @@ data_dir = "data/demo_add"
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
 
 combined_df = pd.DataFrame()
-combined_df = combined_df[combined_df['position_bin'] <= 2.5]
-
 
 
 for file in file_list:
