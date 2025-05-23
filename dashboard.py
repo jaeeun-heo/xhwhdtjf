@@ -26,47 +26,26 @@ st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
 
 
-# 폴더 경로
-data_folder = os.path.join("C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add")
-pattern = os.path.join(data_folder, "*_add.csv")
-files = glob.glob(pattern)
+# 데이터 디렉토리 설정
+data_dir = "C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add/"
+file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
 
 
-if not files:
-    st.warning("분석된 추가 파일(_add.csv)이 폴더에 없습니다.")
+if file_list:
+    df = pd.read_csv(file_list[0])
+
+    # x축: position, y축: y1 (자이로값)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.plot(df['position'], df['gyro'], marker='o', linestyle='-')
+    ax.set_title("Position별 자이로 센서 값 (y1)")
+    ax.set_xlabel("Position (m)")
+    ax.set_ylabel("자이로 값 (y1)")
+    ax.set_xlim(0, 2.5)  # 0~2.5m 범위로 제한
+    ax.grid(True)
+
+    st.pyplot(fig)
 else:
-    file_names = [os.path.basename(f) for f in files]
-    selected_file = st.selectbox("분석 파일 선택", file_names)
-
-
-    if selected_file:
-        file_path = os.path.join(data_folder, selected_file)
-        df = pd.read_csv(file_path)
-
-        st.write(f"### {selected_file} 데이터 미리보기")
-        st.dataframe(df)
-
-        # 개별 y1_* 컬럼만 추출 (예: y1_1, y1_2, ..., y1_n)
-        y1_cols = [col for col in df.columns if col.startswith('y1_') and col != 'y1_mean' and col != 'y1_iqr_upper']
-
-        if 'position' in df.columns and y1_cols:
-            st.write("### 개별 자이로 y1 값 (position 기준 선 그래프)")
-
-            fig, ax = plt.subplots(figsize=(10, 4))
-
-            for col in y1_cols:
-                ax.plot(df['position'], df[col], label=col, alpha=0.5)
-
-            ax.set_xlabel("Position (m)")
-            ax.set_ylabel("y1 값")
-            ax.set_title("개별 y1 데이터 (자이로)")
-            ax.legend(loc='upper right', fontsize='small', ncol=2)
-            ax.grid(True)
-
-            st.pyplot(fig)
-        else:
-            st.info("position 또는 개별 y1_* 컬럼이 존재하지 않습니다.")
-
+    st.warning("분석 파일이 없습니다.")
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
     st.session_state.alarm_active = False
