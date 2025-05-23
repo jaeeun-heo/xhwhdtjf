@@ -39,27 +39,10 @@ for file in file_list:
         df['position_bin'] = (df['position'] / 0.1).round() * 0.1
         combined_df = pd.concat([combined_df, df[['position_bin', 'gyro', 'file']]], ignore_index=True)
 
-# 2. 통계 계산
-summary = combined_df.groupby('position_bin')['gyro'].agg(['mean', 'max', 'min', 'std']).reset_index()
+# 2. 평균선 계산
+mean_line = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
 
-# 3. Plotly 시각화
-fig = px.line(summary, x='position_bin', y='mean', title='📈 Gyro Mean by Position',
-              labels={'position_bin': 'Position', 'mean': 'Gyro Mean'},
-              line_shape='spline')
-
-fig.add_scatter(x=summary['position_bin'], y=summary['max'], mode='lines', name='Max Gyro')
-fig.add_scatter(x=summary['position_bin'], y=summary['min'], mode='lines', name='Min Gyro')
-
-
-mean_line = combined_df.groupby('position_bin')['gyro'].mean().reset_index()
-fig.add_trace(go.Scatter(x=mean_line['position_bin'], y=mean_line['gyro'],
-                         mode='lines', name='Mean Gyro', line=dict(color='red')))
-
-
-max_line = combined_df.groupby('position_bin')['gyro'].max().reset_index()
-fig.add_trace(go.Scatter(x=max_line['position_bin'], y=max_line['gyro'],
-                         mode='lines', name='Max Gyro', line=dict(color='green')))
-
+# 3. IQR 상한선 계산
 def calc_iqr_upper_bound(group):
     q1 = group.quantile(0.25)
     q3 = group.quantile(0.75)
@@ -67,9 +50,18 @@ def calc_iqr_upper_bound(group):
     return q3 + 1.5 * iqr
 
 iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index(name='upper')
+
+# 4. Plotly 시각화
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=mean_line['position_bin'], y=mean_line['mean'],
+                         mode='lines', name='Mean Gyro', line=dict(color='red')))
 fig.add_trace(go.Scatter(x=iqr_df['position_bin'], y=iqr_df['upper'],
                          mode='lines', name='IQR Upper Bound', line=dict(color='orange', dash='dash')))
 
+fig.update_layout(title='📈 Gyro Mean & IQR Upper Bound by Position',
+                  xaxis_title='Position',
+                  yaxis_title='Gyro',
+                  template='plotly_white')
 
 st.plotly_chart(fig, use_container_width=True)
 
