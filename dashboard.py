@@ -1,3 +1,6 @@
+st.set_page_config(layout="wide")
+
+
 import qrcode
 
 url = "https://xhwhdtjf-b7n87zyelbtmnhzzjlp6kq.streamlit.app/"
@@ -31,7 +34,6 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 
 # gyro_dashboard.py
-st.set_page_config(layout="wide")
 
 import os
 import glob
