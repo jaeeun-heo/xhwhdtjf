@@ -25,7 +25,9 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 # 데이터 디렉토리 설정
 data_dir = os.path.join("data", "demo_add")
-file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
+pattern = os.path.join(data_dir, "demo_*_add.csv")
+file_list = glob.glob(pattern)
+
 
 st.write(f"데이터 폴더 경로: {data_dir}")
 st.write(f"찾은 파일 개수: {len(file_list)}")
