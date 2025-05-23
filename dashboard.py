@@ -11,6 +11,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from io import BytesIO
 from PIL import Image
+import os
+import glob
+
+
+
+
 
 
 # 페이지 기본 설정
@@ -18,6 +24,29 @@ st.set_page_config(page_title="교량 안전 모니터링 시스템", layout="wi
 st.title("📊 교량 안전 모니터링 대시보드")
 st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이터를 분석하여 이상을 감지합니다.")
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
+
+
+# 폴더 경로
+data_folder = os.path.join("C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add")
+pattern = os.path.join(data_folder, "*_add.csv")
+files = glob.glob(pattern)
+
+
+if not files:
+    st.warning("분석된 추가 파일(_add.csv)이 폴더에 없습니다.")
+else:
+    file_names = [os.path.basename(f) for f in files]
+    selected_file = st.selectbox("분석 파일 선택", file_names)
+
+    if selected_file:
+        st.write(f"### {selected_file} 데이터 미리보기")
+        placeholder = st.empty()  # 데이터프레임 자리
+        chart_placeholder = st.empty()  # 그래프 자리
+
+        # 아직 분석 결과가 없는 상태이므로 시각화 틀만 생성
+        st.info("분석된 y1 평균 및 IQR 상한값을 계산 후 그래프가 이 영역에 표시됩니다.")
+
+
 
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
