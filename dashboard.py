@@ -60,61 +60,77 @@ iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
 mean_by_bin = mean_line.groupby('bin_group')['mean'].mean()
 iqr_by_bin = iqr_df.groupby('bin_group')['upper'].mean()
 
-# 구간별 이름 생성 (ex: "0.0 ~ 0.5")
-ranges = [f"{start:.1f} ~ {start + 0.5:.1f}" for start in mean_by_bin.index]
+# 각 구간별 x축 구간의 시작과 끝 (0.5 간격)
+bin_starts = mean_by_bin.index.values
+bin_ends = bin_starts + 0.5
 
-# 구간별 데이터프레임 (summary_table)
-summary_table = pd.DataFrame({
-    'Mean of Gyro': mean_by_bin.values,
-    'Mean of IQR Upper Bound': iqr_by_bin.values
-}, index=ranges)
+# 그래프용 x,y 값 준비 (0.1 단위 position_bin에 따른 값)
+x_vals = mean_line['position_bin']
+mean_vals = mean_line['mean']
+iqr_vals = iqr_df['upper']
 
-# 전체 평균 추가
-summary_table['Overall Mean'] = summary_table.mean(axis=1)
-
-# Streamlit에 표 출력
-st.markdown("### 📊 구간별 평균 값 요약 (0.5m 간격)")
-st.dataframe(summary_table.style.format("{:.3f}"))
-
-# 그래프용 x축 좌표: 각 구간의 중간값 (ex: 0.25, 0.75 ...)
-mid_points = mean_by_bin.index + 0.25
-
-# Plotly 그래프 생성
 fig = go.Figure()
 
-# 평균선 + 라벨
+# 원래 평균선
 fig.add_trace(go.Scatter(
-    x=mid_points,
-    y=mean_by_bin.values,
-    mode='lines+markers+text',
+    x=x_vals,
+    y=mean_vals,
+    mode='lines',
     name='Mean Gyro',
-    line=dict(color='red'),
-    text=[f"{v:.2f}" for v in mean_by_bin.values],
-    textposition='top center'
+    line=dict(color='red')
 ))
 
-# IQR 상한선 + 라벨
+# 원래 IQR 상한선
 fig.add_trace(go.Scatter(
-    x=mid_points,
-    y=iqr_by_bin.values,
-    mode='lines+markers+text',
+    x=iqr_df['position_bin'],
+    y=iqr_vals,
+    mode='lines',
     name='IQR Upper Bound',
-    line=dict(color='orange', dash='dash'),
-    text=[f"{v:.2f}" for v in iqr_by_bin.values],
-    textposition='bottom center'
+    line=dict(color='orange', dash='dash')
 ))
+
+# 구간별 평균 수치를 구간 길이만큼 텍스트로 추가 (annotation)
+for start, end, mean_val, iqr_val in zip(bin_starts, bin_ends, mean_by_bin.values, iqr_by_bin.values):
+    x_pos = (start + end) / 2  # 구간 중간 위치
+    
+    # Mean Gyro 텍스트 (평균값)
+    fig.add_annotation(
+        x=x_pos, y=mean_val,
+        text=f"Mean: {mean_val:.2f}",
+        showarrow=False,
+        yshift=15,
+        font=dict(color='red', size=12),
+        align='center',
+        bgcolor='rgba(255,255,255,0.7)',
+        bordercolor='red',
+        borderwidth=1,
+        borderpad=2
+    )
+    
+    # IQR Upper Bound 텍스트
+    fig.add_annotation(
+        x=x_pos, y=iqr_val,
+        text=f"IQR Upper: {iqr_val:.2f}",
+        showarrow=False,
+        yshift=-20,
+        font=dict(color='orange', size=12),
+        align='center',
+        bgcolor='rgba(255,255,255,0.7)',
+        bordercolor='orange',
+        borderwidth=1,
+        borderpad=2
+    )
 
 fig.update_layout(
-    title='Gyro Mean and IQR Upper Bound by Position with Labels',
+    title='Gyro Mean and IQR Upper Bound by Position with Interval Labels',
     xaxis_title='Position (m)',
     yaxis_title='Gyro',
-    yaxis=dict(range=[0, max(iqr_by_bin.values)*1.2]),
     template='plotly_white',
+    yaxis=dict(range=[0, max(iqr_by_bin.values)*1.2]),
     legend=dict(y=0.99, x=0.01)
 )
 
 st.plotly_chart(fig, use_container_width=True)
-
 
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
 
