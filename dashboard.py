@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
 from io import BytesIO
 from PIL import Image
 import os
@@ -49,9 +50,38 @@ fig = px.line(summary, x='position_bin', y='mean', title='📈 Gyro Mean by Posi
 fig.add_scatter(x=summary['position_bin'], y=summary['max'], mode='lines', name='Max Gyro')
 fig.add_scatter(x=summary['position_bin'], y=summary['min'], mode='lines', name='Min Gyro')
 
+
+mean_line = combined_df.groupby('position_bin')['gyro'].mean().reset_index()
+fig.add_trace(go.Scatter(x=mean_line['position_bin'], y=mean_line['gyro'],
+                         mode='lines', name='Mean Gyro', line=dict(color='red')))
+
+
+max_line = combined_df.groupby('position_bin')['gyro'].max().reset_index()
+fig.add_trace(go.Scatter(x=max_line['position_bin'], y=max_line['gyro'],
+                         mode='lines', name='Max Gyro', line=dict(color='green')))
+
+def calc_iqr_upper_bound(group):
+    q1 = group.quantile(0.25)
+    q3 = group.quantile(0.75)
+    iqr = q3 - q1
+    return q3 + 1.5 * iqr
+
+iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index(name='upper')
+fig.add_trace(go.Scatter(x=iqr_df['position_bin'], y=iqr_df['upper'],
+                         mode='lines', name='IQR Upper Bound', line=dict(color='orange', dash='dash')))
+
+
 st.plotly_chart(fig, use_container_width=True)
 
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
+
+
+
+
+
+
+
+
 
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
