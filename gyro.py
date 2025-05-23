@@ -123,7 +123,7 @@ def show_gyro():
 
     # 결과 출력
     st.markdown("### 📊 Summary Table (per 0.5m interval)")
-    st.dataframe(summary_table.round(3), height=400)
+    st.dataframe(summary_table.round(3), width=900)
 
 
 
