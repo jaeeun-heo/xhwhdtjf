@@ -118,7 +118,7 @@ fig = go.Figure()
 # 평균선
 fig.add_trace(go.Scatter(
     x=summary_table['mid_point'],
-    y=summary_table['Mean of Gyro'],
+    y=[-0.05] * len(summary_table),  # <-- 여기 수정됨
     mode='lines+markers',
     name=f'Mean Gyro (avg={overall_mean:.2f})',
     line=dict(color='blue', width=2)
