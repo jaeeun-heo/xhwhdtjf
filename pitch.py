@@ -16,10 +16,10 @@ def show_pitch():
 
     combined_df = pd.DataFrame()
 
-
     for file in file_list:
         df = pd.read_csv(file)
         df['file'] = os.path.basename(file).split('.')[0]
+
         if 'position' in df.columns and 'cumulative_pitch' in df.columns and 'tilt' in df.columns:
             df['position_bin'] = (df['position'] / 0.1).round() * 0.1
             combined_df = pd.concat([
@@ -27,43 +27,63 @@ def show_pitch():
                 df[['position', 'cumulative_pitch', 'tilt', 'position_bin', 'file']]
             ], ignore_index=True)
 
-    # 2. 유효 구간 필터링
+    # 2. 유효한 구간으로 자르기
     combined_df = combined_df[(combined_df['position'] >= 0) & (combined_df['position'] <= 2.5)]
 
-    # 3. position_bin 별 평균 계산
-    mean_df = combined_df.groupby('position_bin').agg({
-        'cumulative_pitch': 'mean',
-        'tilt': 'mean'
-    }).reset_index()
+    # 3. 평균 pitch 및 tilt 계산
+    pitch_df = combined_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index(name='pitch_mean').round(3)
+    tilt_df = combined_df.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean').round(3)
 
-    # 상하한 계산
-    mean_df['upper'] = mean_df['cumulative_pitch'] + mean_df['tilt']
-    mean_df['lower'] = mean_df['cumulative_pitch'] - mean_df['tilt']
+    merged_df = pd.merge(pitch_df, tilt_df, on='position_bin')
+    merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] / 2
+    merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] / 2
 
     # 4. Plotly 그래프 생성
     fig = go.Figure()
 
-    # (1) tilt 영역: 상한/하한을 채운 band
-    fig.add_trace(go.Scatter(
-        x=pd.concat([mean_df['position_bin'], mean_df['position_bin'][::-1]]),
-        y=pd.concat([mean_df['upper'], mean_df['lower'][::-1]]),
-        fill='toself',
-        fillcolor='rgba(0, 100, 255, 0.2)',  # pitch 색과 어울리게
-        line=dict(color='rgba(255,255,255,0)'),
-        hoverinfo="skip",
-        name='Tilt Band'
-    ))
+    # 개별 파일 데이터는 생략 가능 (필요시 아래 주석 해제)
+    # for fname in combined_df['file'].unique():
+    #     file_data = combined_df[combined_df['file'] == fname]
+    #     fig.add_trace(go.Scatter(
+    #         x=file_data['position'],
+    #         y=file_data['cumulative_pitch'],
+    #         mode='lines',
+    #         name=fname,
+    #         line=dict(width=1, color='rgba(100,100,100,0.4)'),
+    #         visible='legendonly'
+    #     ))
 
-    # (2) pitch 평균선
+    # 평균 pitch 선 추가
     fig.add_trace(go.Scatter(
-        x=mean_df['position_bin'],
-        y=mean_df['cumulative_pitch'],
+        x=merged_df['position_bin'],
+        y=merged_df['pitch_mean'],
         mode='lines',
-        name='Cumulative Pitch',
-        line=dict(color='royalblue', width=3)
+        name='Cumulative Pitch (Mean)',
+        line=dict(color='mediumslateblue', width=3)
     ))
 
-    # 5. 레이아웃
+    # tilt 기반 상하한 범위 영역 추가
+    fig.add_trace(go.Scatter(
+        x=merged_df['position_bin'],
+        y=merged_df['tilt_upper'],
+        mode='lines',
+        name='Tilt Upper',
+        line=dict(color='mediumslateblue', width=0),
+        showlegend=False
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=merged_df['position_bin'],
+        y=merged_df['tilt_lower'],
+        mode='lines',
+        name='Tilt Lower',
+        line=dict(color='mediumslateblue', width=0),
+        fill='tonexty',  # 상하 사이 영역을 채움
+        fillcolor='rgba(123, 104, 238, 0.3)',  # mediumslateblue with alpha
+        showlegend=True
+    ))
+
+    # 레이아웃 설정
     fig.update_layout(
         title='📈 Cumulative Pitch with Tilt Band',
         xaxis_title='Position (m)',
@@ -82,4 +102,5 @@ def show_pitch():
         margin=dict(b=80)
     )
 
+    # Streamlit 출력
     st.plotly_chart(fig, use_container_width=True)
