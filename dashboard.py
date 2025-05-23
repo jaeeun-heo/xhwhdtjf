@@ -20,8 +20,8 @@ img.save("qr_code.png")
 # 💡 대시보드 상단 제목 + 경보 버튼 한 줄 배치
 title_col, button_col = st.columns([9, 1])
 with title_col:
-    st.markdown("# 스마트폰 센서 기반 교량 모니터링 시스템")
-    st.markdown("##### 토목공학종합설계 7조")
+    st.markdown("#### 스마트폰 센서 기반 교량 모니터링 시스템")
+    st.markdown("###### 토목공학종합설계 7조")
 
 if 'alarm_active' not in st.session_state:
     st.session_state.alarm_active = False
@@ -78,7 +78,7 @@ for i in range(1, 4):
     )
 
 # --- 분석 탭 버튼 ---
-analysis_option = st.radio("##### \U0001F4CB 분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
+analysis_option = st.radio("### \U0001F4CB 분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
 
 # Gyro 분석 모듈 import
 from gyro import show_gyro
