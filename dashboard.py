@@ -47,22 +47,22 @@ else:
         st.dataframe(df.head())
 
         # x, y 축 컬럼명은 실제 파일에 맞게 조정하세요
-        if 'distance' in df.columns and 'gyro_y' in df.columns:
+        if 'position' in df.columns and 'gyro' in df.columns:
             # 0~2.5m 범위 필터링 (필요 시)
-            df_filtered = df[(df['distance'] >= 0) & (df['distance'] <= 2.5)]
+            df_filtered = df[(df['position'] >= 0) & (df['position'] <= 2.5)]
 
-            st.write("### 자이로 데이터 시각화 (distance vs gyro_y)")
+            st.write("### 자이로 데이터 시각화 (position vs gyro)")
 
             fig, ax = plt.subplots()
-            ax.plot(df_filtered['distance'], df_filtered['gyro_y'], label='gyro_y')
-            ax.set_xlabel("Distance (m)")
-            ax.set_ylabel("Gyro Y")
+            ax.plot(df_filtered['position'], df_filtered['gyro'], label='gyro')
+            ax.set_xlabel("position (m)")
+            ax.set_ylabel("gyro")
             ax.legend()
             ax.grid(True)
 
             st.pyplot(fig)
         else:
-            st.info("distance 또는 gyro_y 컬럼이 데이터에 없습니다.")
+            st.info("position 또는 gyro 컬럼이 데이터에 없습니다.")
 
 
 
