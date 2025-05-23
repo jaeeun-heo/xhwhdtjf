@@ -25,12 +25,20 @@ st.title("📊 교량 안전 모니터링 대시보드")
 st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이터를 분석하여 이상을 감지합니다.")
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
 
+
+
+
+
+
 # 데이터 디렉토리 설정
 
 data_dir = "data/demo_add"
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
 
 combined_df = pd.DataFrame()
+combined_df = combined_df[combined_df['position_bin'] <= 2.5]
+
+
 
 for file in file_list:
     df = pd.read_csv(file)
@@ -101,10 +109,10 @@ for start, end, mean_val, iqr_val in zip(bin_starts, bin_ends, mean_by_bin.value
         text=f"Mean: {mean_val:.2f}",
         showarrow=False,
         yshift=15,
-        font=dict(color='sky blue', size=16, family="Arial"),
+        font=dict(color='blue', size=16, family="Arial"),
         align='center',
         bgcolor='rgba(255,255,255,0.7)',
-        bordercolor='red',
+        bordercolor='sky blue',
         borderwidth=1,
         borderpad=4
     )
@@ -128,6 +136,13 @@ fig.update_layout(
     template='plotly_white',
     yaxis=dict(range=[0, 1.0]),  # y축 범위 0~1.0으로 고정
     legend=dict(y=0.99, x=0.01, font=dict(size=14))
+        legend=dict(
+        x=1.02,
+        y=1,
+        xanchor='left',
+        yanchor='top',
+        font=dict(size=14)
+    )
 )
 
 st.plotly_chart(fig, use_container_width=True)
