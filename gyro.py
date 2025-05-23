@@ -10,7 +10,6 @@ import os
 import glob
 
 def show_gyro():
-    st.header("Gyro 센서 데이터 분석 화면")
 
     # 1. 파일 로딩
     data_dir = "data/demo_add"
