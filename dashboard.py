@@ -78,12 +78,7 @@ for i in range(1, 4):
     )
 
 # --- 분석 탭 버튼 ---
-col1, col2 = st.columns([1, 3])  # 비율 조정 가능
-with col1:
-    st.markdown("##### 분석 항목 선택")
-with col2:
-    analysis_option = st.radio("", ["Gyro", "Pitch"], horizontal=True
-)
+analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
 
 # Gyro 분석 모듈 import
 from gyro import show_gyro
