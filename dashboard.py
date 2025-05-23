@@ -65,6 +65,26 @@ fig.update_layout(title='📈 Gyro Mean & IQR Upper Bound by Position',
 
 st.plotly_chart(fig, use_container_width=True)
 
+
+# 1. 구간 단위 설정 (0.5m 간격)
+mean_line['bin_group'] = (mean_line['position_bin'] / 0.5).round() * 0.5
+iqr_df['bin_group'] = (iqr_df['position_bin'] / 0.5).round() * 0.5
+
+# 2. 구간별 평균값 계산
+summary_table = pd.merge(
+    mean_line.groupby('bin_group')['mean'].mean().reset_index(name='Mean of Gyro'),
+    iqr_df.groupby('bin_group')['upper'].mean().reset_index(name='Mean of IQR Upper Bound'),
+    on='bin_group'
+)
+
+# 3. 구간 범위 문자열로 변환 (선택사항: 시각적으로 보기 좋게)
+summary_table['Range (m)'] = summary_table['bin_group'].apply(lambda x: f"{x - 0.25:.2f} ~ {x + 0.25:.2f}")
+summary_table = summary_table[['Range (m)', 'Mean of Gyro', 'Mean of IQR Upper Bound']]
+
+# 4. Streamlit 표로 출력
+st.markdown("### 📊 구간별 평균 값 요약 (0.5m 간격)")
+st.dataframe(summary_table.style.format({'Mean of Gyro': '{:.3f}', 'Mean of IQR Upper Bound': '{:.3f}'}))
+
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
 
 
