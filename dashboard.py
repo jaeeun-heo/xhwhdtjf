@@ -1,4 +1,4 @@
-st.set_page_config(layout="wide")
+
 
 
 import qrcode
@@ -21,18 +21,6 @@ import glob
 
 
 
-
-# 페이지 기본 설정
-st.set_page_config(page_title="교량 안전 모니터링 시스템", layout="wide")
-st.title("📊 교량 안전 모니터링 대시보드")
-st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이터를 분석하여 이상을 감지합니다.")
-st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
-
-
-
-
-
-
 # gyro_dashboard.py
 
 import os
@@ -41,6 +29,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
+st.set_page_config(layout="wide")
 
 with st.expander("Gyro"):
     # 1. 파일 로딩
