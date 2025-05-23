@@ -66,7 +66,7 @@ fig.update_layout(title='📈 Gyro Mean & IQR Upper Bound by Position',
 st.plotly_chart(fig, use_container_width=True)
 
 
-# 1. 구간 단위 설정 (0.5m 간격, 0~0.5, 0.5~1.0 ...)
+# 1. 구간 단위 설정 (0.5m 간격)
 mean_line['bin_group'] = (mean_line['position_bin'] // 0.5) * 0.5
 iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
@@ -74,26 +74,21 @@ iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
 mean_by_bin = mean_line.groupby('bin_group')['mean'].mean()
 iqr_by_bin = iqr_df.groupby('bin_group')['upper'].mean()
 
-# 3. 데이터프레임으로 합치기
+# 3. 구간 이름 만들기 (0~0.5, 0.5~1.0 ...)
+ranges = [f"{start:.1f} ~ {start + 0.5:.1f}" for start in mean_by_bin.index]
+
+# 4. 바로 원하는 형태(행: 지표, 열: 구간)로 데이터프레임 생성
 summary_table = pd.DataFrame({
-    'Mean of Gyro': mean_by_bin,
-    'Mean of IQR Upper Bound': iqr_by_bin
-})
+    'Mean of Gyro': mean_by_bin.values,
+    'Mean of IQR Upper Bound': iqr_by_bin.values
+}, index=ranges).T
 
-# 4. 구간 이름 만들기 (0~0.5, 0.5~1.0 ...)
-summary_table['Range'] = summary_table.index.map(lambda x: f"{x:.1f} ~ {x + 0.5:.1f}")
+# 5. 전체 평균(열 기준) 추가
+summary_table['Overall Mean'] = summary_table.mean(axis=1)
 
-# 5. 행과 열 바꾸기, Range를 컬럼명으로
-summary_table_t = summary_table[['Mean of Gyro', 'Mean of IQR Upper Bound']].T
-summary_table_t.columns = summary_table['Range']
-
-# 6. 전체 평균 추가 (열 맨 뒤에)
-overall_mean = summary_table_t.mean(axis=1)
-summary_table_t['Overall Mean'] = overall_mean
-
-# 7. Streamlit 표 출력
-st.markdown("### 📊 구간별 평균 값 요약 (0.5m 간격, 행/열 변환 및 전체 평균 포함)")
-st.dataframe(summary_table_t.style.format("{:.3f}"))
+# 6. Streamlit에 출력
+st.markdown("### 📊 구간별 평균 값 요약 (0.5m 간격, 행/열 맞춤 및 전체 평균 포함)")
+st.dataframe(summary_table.style.format("{:.3f}"))
 
 
 
