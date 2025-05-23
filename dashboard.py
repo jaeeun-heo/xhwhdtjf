@@ -71,7 +71,7 @@ mean_line['bin_group'] = (mean_line['position_bin'] // 0.5) * 0.5
 iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
 # 2. 구간별 평균값 계산
-mean_by_bin = mean_line.groupby('bin_group')['gyro'].mean()
+mean_by_bin = mean_line.groupby('bin_group')['mean'].mean()
 iqr_by_bin = iqr_df.groupby('bin_group')['upper'].mean()
 
 # 3. 데이터프레임으로 합치기
