@@ -4,7 +4,7 @@ import glob
 import matplotlib.pyplot as plt
 
 # 데이터 디렉토리 설정
-data_dir = "C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add/"
+data_dir = os.path.join("data", "demo_add")
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
 
 # 파일별로 그래프 그리기
