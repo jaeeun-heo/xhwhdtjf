@@ -35,8 +35,10 @@ def show_pitch():
     tilt_df = combined_df.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean').round(3)
 
     merged_df = pd.merge(pitch_df, tilt_df, on='position_bin')
-    merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] / 2
-    merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] / 2
+    scale = 0.25  # 0.5보다 작게 설정해서 얇게
+    merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] * scale
+    merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] * scale
+
 
     # 4. Plotly 그래프 생성
     fig = go.Figure()
