@@ -42,16 +42,16 @@ def show_pitch():
     fig = go.Figure()
 
     # 개별 파일 데이터는 생략 가능 (필요시 아래 주석 해제)
-    # for fname in combined_df['file'].unique():
-    #     file_data = combined_df[combined_df['file'] == fname]
-    #     fig.add_trace(go.Scatter(
-    #         x=file_data['position'],
-    #         y=file_data['cumulative_pitch'],
-    #         mode='lines',
-    #         name=fname,
-    #         line=dict(width=1, color='rgba(100,100,100,0.4)'),
-    #         visible='legendonly'
-    #     ))
+    for fname in combined_df['file'].unique():
+        file_data = combined_df[combined_df['file'] == fname]
+        fig.add_trace(go.Scatter(
+            x=file_data['position'],
+            y=file_data['cumulative_pitch'],
+            mode='lines',
+            name=fname,
+            line=dict(width=1, color='rgba(100,100,100,0.4)'),
+            visible='legendonly'
+        ))
 
     # 평균 pitch 선 추가
     fig.add_trace(go.Scatter(
