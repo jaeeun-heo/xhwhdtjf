@@ -77,8 +77,8 @@ def show_gyro():
         title='📈 Gyro Summary by Position',
         xaxis_title='Position (m)',
         yaxis_title='Gyro',
-        width=900
-        height=500
+        width=900,
+        height=500,
         legend=dict(
             orientation='h',
             yanchor='bottom',
