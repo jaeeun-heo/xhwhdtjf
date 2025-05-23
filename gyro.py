@@ -12,7 +12,7 @@ import glob
 def show_gyro():
     st.header("Gyro 센서 데이터 분석 화면")
 
-        # 1. 파일 로딩
+    # 1. 파일 로딩
     data_dir = "data/demo_add"
     file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
 
@@ -21,9 +21,9 @@ def show_gyro():
     for file in file_list:
         df = pd.read_csv(file)
         df['file'] = os.path.basename(file).split('.')[0]
-    if 'position' in df.columns and 'gyro' in df.columns:
-        df['position_bin'] = (df['position'] / 0.1).round() * 0.1
-        combined_df = pd.concat([combined_df, df[['position', 'gyro', 'position_bin', 'file']]], ignore_index=True)
+        if 'position' in df.columns and 'gyro' in df.columns:
+            df['position_bin'] = (df['position'] / 0.1).round() * 0.1
+            combined_df = pd.concat([combined_df, df[['position', 'gyro', 'position_bin', 'file']]], ignore_index=True)
 
     # 2. 통합 평균 및 IQR 계산
     mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
@@ -82,7 +82,7 @@ def show_gyro():
 
     st.plotly_chart(fig, use_container_width=True)
 
-        # 4. 표 생성 (0.5m 단위로, 범위를 열로)
+    # 4. 표 생성 (0.5m 단위로, 범위를 열로)
     mean_df['range'] = (mean_df['position_bin'] // 0.5) * 0.5
     iqr_df['range'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
