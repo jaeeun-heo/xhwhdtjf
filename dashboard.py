@@ -135,8 +135,7 @@ fig.update_layout(
     yaxis_title='Gyro',
     template='plotly_white',
     yaxis=dict(range=[0, 1.0]),  # y축 범위 0~1.0으로 고정
-    legend=dict(y=0.99, x=0.01, font=dict(size=14))
-        legend=dict(
+    legend=dict(
         x=1.02,
         y=1,
         xanchor='left',
