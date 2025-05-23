@@ -26,23 +26,26 @@ def show_gyro():
             combined_df = pd.concat([combined_df, df[['position', 'gyro', 'position_bin', 'file']]], ignore_index=True)
 
     # 2. 통합 평균 및 IQR 계산
-    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
+    filtered_df = combined_df[(combined_df['position'] >= 0) & (combined_df['position'] <= 2.5)]
+
+
+    mean_df = filtered_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
 
     def calc_iqr_upper(group):
         q1 = group.quantile(0.25)
         q3 = group.quantile(0.75)
         return q3 + 1.5 * (q3 - q1)
 
-    iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
+    iqr_df = filtered_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
 
-        # 전체 평균
+    # 전체 평균 계산도 필터링된 데이터 기반
     overall_mean = mean_df['mean'].mean()
     overall_iqr = iqr_df['upper'].mean()
 
-        # 3. Plotly 그래프 생성
+    # 3. Plotly 그래프 생성
     fig = go.Figure()
 
-        # 개별 파일 데이터 (legendonly, alpha 0.5)
+    # 개별 파일 데이터 (legendonly, alpha 0.5)
     for fname in combined_df['file'].unique():
         file_data = combined_df[combined_df['file'] == fname]
         fig.add_trace(go.Scatter(
@@ -54,7 +57,7 @@ def show_gyro():
             visible='legendonly'
         ))
 
-        # 평균선 추가
+    # 평균선 추가
     fig.add_trace(go.Scatter(
         x=mean_df['position_bin'],
         y=mean_df['mean'],
@@ -63,7 +66,7 @@ def show_gyro():
         line=dict(color='skyblue', width=3)
     ))
 
-        # IQR 상한선 추가
+    # IQR 상한선 추가
     fig.add_trace(go.Scatter(
         x=iqr_df['position_bin'],
         y=iqr_df['upper'],
@@ -82,33 +85,33 @@ def show_gyro():
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4. 표 생성 (0.5m 단위로, 범위를 열로)
-    mean_df['range'] = (mean_df['position_bin'] // 0.5) * 0.5
-    iqr_df['range'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
-    range_labels = sorted(mean_df['range'].unique())
+    # 4. ##표 생성### 0.5m 구간별 평균 및 IQR 상한선 요약
+    iqr_df['range'] = (iqr_df['position_bin'] // 0.5) * 0.5
+    mean_df['range'] = (mean_df['position_bin'] // 0.5) * 0.5
+
+    # 구간별 평균 계산
+    iqr_summary = iqr_df.groupby('range')['upper'].mean()
+    mean_summary = mean_df.groupby('range')['mean'].mean()
+
+    # 전체 평균 계산
+    overall_iqr = iqr_summary.mean()
+    overall_mean = mean_summary.mean()
+
+    # 구간 레이블 문자열 생성
+    range_labels = sorted(iqr_summary.index)
     range_str_labels = [f"{r:.1f}~{r+0.5:.1f}" for r in range_labels]
 
-    mean_summary = mean_df.groupby('range')['mean'].mean()
-    iqr_summary = iqr_df.groupby('range')['upper'].mean()
+    # 표용 데이터프레임 생성
+    summary_table = pd.DataFrame({
+        'Mean of IQR Upper Bound': list(iqr_summary) + [overall_iqr],
+        'Mean of Gyro': list(mean_summary) + [overall_mean]
+    }, index=range_str_labels + ['Overall (0.0~2.5)'])
 
-        # 전체 평균 계산 (0.0~2.5)
-    overall_mean = mean_summary.mean()
-    overall_iqr = iqr_summary.mean()
-
-        # 데이터프레임 형태 맞추기
-    data = {
-        'Mean of Gyro': [mean_summary.get(r, np.nan) for r in range_labels] + [overall_mean],
-        'Mean of IQR Upper Bound': [iqr_summary.get(r, np.nan) for r in range_labels] + [overall_iqr]
-    }
-
-        # 열 이름에 전체 평균 범위 추가
-    columns = range_str_labels + ['Overall (0.0~2.5)']
-
-    summary_table = pd.DataFrame(data, index=columns).T
-
-        # 결과 출력
-    st.markdown("### 📊 Summary Table (per 0.5m interval, transposed)")
+    # 결과 출력
+    st.markdown("### 📊 Summary Table (per 0.5m interval)")
     st.dataframe(summary_table.round(3))
+
+
 
     # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
