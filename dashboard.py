@@ -25,31 +25,44 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 # 데이터 디렉토리 설정
 
-data_dir = os.path.join("data", "demo_add")
+data_dir = os.path.abspath(os.path.join("data", "demo_add"))
 pattern = os.path.join(data_dir, "demo_*_add.csv")
-
 file_list = glob.glob(pattern)
 
-st.write(f"데이터 폴더 경로: {data_dir}")
-st.write(f"찾은 파일 개수: {len(file_list)}")
-st.write(f"찾은 파일 목록: {file_list}")
+st.write(f"데이터 폴더: {data_dir}")
+st.write(f"파일 개수: {len(file_list)}")
 
-
-if file_list:
-    df = pd.read_csv(file_list[0])
-
-    # x축: position, y축: y1 (자이로값)
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.plot(df['position'], df['gyro'], marker='o', linestyle='-')
-    ax.set_title("Position별 자이로 센서 값 (y1)")
-    ax.set_xlabel("Position (m)")
-    ax.set_ylabel("자이로 값 (y1)")
-    ax.set_xlim(0, 2.5)  # 0~2.5m 범위로 제한
-    ax.grid(True)
-
-    st.pyplot(fig)
-else:
+if len(file_list) == 0:
     st.warning("분석 파일이 없습니다.")
+else:
+    # 파일 선택 박스
+    file_names = [os.path.basename(f) for f in file_list]
+    selected_file = st.selectbox("분석 파일 선택", file_names)
+
+    if selected_file:
+        file_path = os.path.join(data_dir, selected_file)
+        df = pd.read_csv(file_path)
+
+        st.write(f"### {selected_file} 데이터 미리보기")
+        st.dataframe(df.head())
+
+        # x, y 축 컬럼명은 실제 파일에 맞게 조정하세요
+        if 'distance' in df.columns and 'gyro_y' in df.columns:
+            # 0~2.5m 범위 필터링 (필요 시)
+            df_filtered = df[(df['distance'] >= 0) & (df['distance'] <= 2.5)]
+
+            st.write("### 자이로 데이터 시각화 (distance vs gyro_y)")
+
+            fig, ax = plt.subplots()
+            ax.plot(df_filtered['distance'], df_filtered['gyro_y'], label='gyro_y')
+            ax.set_xlabel("Distance (m)")
+            ax.set_ylabel("Gyro Y")
+            ax.legend()
+            ax.grid(True)
+
+            st.pyplot(fig)
+        else:
+            st.info("distance 또는 gyro_y 컬럼이 데이터에 없습니다.")
 
 
 
