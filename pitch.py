@@ -55,7 +55,7 @@ def show_pitch():
         y=mean_df['cumulative_pitch'],
         mode='lines',
         name='Mean Pitch',
-        line=dict(color='red', width=3)
+        line=dict(color='sky blue', width=3)
     ))
 
     # 최대선 추가
@@ -64,7 +64,7 @@ def show_pitch():
         y=max_df['cumulative_pitch'],
         mode='lines',
         name='Max Pitch',
-        line=dict(color='green', width=1, dash='dash')
+        line=dict(color='orange', width=1, dash='dash')
     ))
 
     # 최소선 추가
@@ -73,7 +73,7 @@ def show_pitch():
         y=min_df['cumulative_pitch'],
         mode='lines',
         name='Min Pitch',
-        line=dict(color='green', width=1, dash='dash')
+        line=dict(color='orange', width=1, dash='dash')
     ))
 
     # 고점-저점 음영 (Fill_between 효과 - Plotly에서는 Scatter + fill='tonexty' 사용)
