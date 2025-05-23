@@ -33,8 +33,8 @@ def show_gyro():
         q3 = group.quantile(0.75)
         return q3 + 1.5 * (q3 - q1)
 
-    iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
-    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
+    iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper').round(3)
+    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean').round(3)
 
     overall_iqr = iqr_df['upper'].mean()
     overall_mean = mean_df['mean'].mean()
@@ -77,6 +77,8 @@ def show_gyro():
         title='📈 Gyro Summary by Position',
         xaxis_title='Position (m)',
         yaxis_title='Gyro',
+        width=900
+        height=500
         legend=dict(
             orientation='h',
             yanchor='bottom',
@@ -85,7 +87,7 @@ def show_gyro():
             x=0.5
         ),
         template='plotly_white',
-        margin=dict(b=80)  # 범례 공간 확보
+        margin=dict(b=80)
     )
 
     st.plotly_chart(fig, use_container_width=True)
@@ -121,7 +123,7 @@ def show_gyro():
 
     # 결과 출력
     st.markdown("### 📊 Summary Table (per 0.5m interval)")
-    st.dataframe(summary_table.round(3))
+    st.dataframe(summary_table.round(3), height=400)
 
 
 
