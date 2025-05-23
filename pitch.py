@@ -45,7 +45,7 @@ def show_pitch():
             y=file_data['cumulative_pitch'],
             mode='lines',
             name=fname,
-            line=dict(width=1, color='rgba(100,100,100,0.35)'),
+            line=dict(width=1, color='rgba(100,100,100,0.8)'),
             visible='legendonly'
         ))
 
