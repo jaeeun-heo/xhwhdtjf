@@ -102,17 +102,34 @@ with st.expander("Gyro"):
 
     st.plotly_chart(fig, use_container_width=True)
 
-    # 4. 표 생성 (0.5m 단위로)
+    # 4. 표 생성 (0.5m 단위로, 범위를 열로)
     mean_df['range'] = (mean_df['position_bin'] // 0.5) * 0.5
     iqr_df['range'] = (iqr_df['position_bin'] // 0.5) * 0.5
 
-    summary = pd.DataFrame()
-    summary['Range (m)'] = sorted(mean_df['range'].unique())
-    summary['Mean of Gyro'] = summary['Range (m)'].map(mean_df.groupby('range')['mean'].mean())
-    summary['Mean of IQR Upper Bound'] = summary['Range (m)'].map(iqr_df.groupby('range')['upper'].mean())
+    range_labels = sorted(mean_df['range'].unique())
+    range_str_labels = [f"{r:.1f}~{r+0.5:.1f}" for r in range_labels]
 
-    st.write("### 📊 Summary Table (Grouped by 0.5m)")
-    st.dataframe(summary.round(3))
+    mean_summary = mean_df.groupby('range')['mean'].mean()
+    iqr_summary = iqr_df.groupby('range')['upper'].mean()
+
+    # 전체 평균 계산 (0.0~2.5)
+    overall_mean = mean_summary.mean()
+    overall_iqr = iqr_summary.mean()
+
+    # 데이터프레임 형태 맞추기
+    data = {
+        'Mean of Gyro': [mean_summary.get(r, np.nan) for r in range_labels] + [overall_mean],
+        'Mean of IQR Upper Bound': [iqr_summary.get(r, np.nan) for r in range_labels] + [overall_iqr]
+    }
+
+    # 열 이름에 전체 평균 범위 추가
+    columns = range_str_labels + ['Overall (0.0~2.5)']
+
+    summary_table = pd.DataFrame(data, index=columns).T
+
+    # 결과 출력
+    st.markdown("### 📊 Summary Table (per 0.5m interval, transposed)")
+    st.dataframe(summary_table.round(3))
 
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
 
