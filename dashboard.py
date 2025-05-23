@@ -79,7 +79,7 @@ for i in range(1, 4):
 
 # --- 분석 탭 버튼 ---
 st.subheader("\U0001F4CB 분석 항목 선택")
-analysis_option = st.radio(["Gyro", "Pitch"], horizontal=True)
+analysis_option = st.radio("", ["Gyro", "Pitch"], horizontal=True)
 
 # Gyro 분석 모듈 import
 from gyro import show_gyro
