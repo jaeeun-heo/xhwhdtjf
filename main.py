@@ -27,6 +27,9 @@ with title_col:
     st.markdown("# 🚧 스마트 교량 모니터링 대시보드")
     st.markdown("##### 실시간 센서 데이터 업로드 및 분석")
 
+if 'alarm_active' not in st.session_state:
+    st.session_state.alarm_active = False
+    
 with button_col:
     if st.button("\U0001F6A8"):
         st.session_state.alarm_active = not st.session_state.alarm_active
