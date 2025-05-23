@@ -51,6 +51,9 @@ def calc_iqr_upper_bound(group):
 
 iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index(name='upper')
 
+
+
+
 # 0.5 단위 구간 생성
 mean_line['bin_group'] = (mean_line['position_bin'] // 0.5) * 0.5
 iqr_df['bin_group'] = (iqr_df['position_bin'] // 0.5) * 0.5
@@ -77,7 +80,7 @@ fig.add_trace(go.Scatter(
     y=mean_vals,
     mode='lines',
     name=f'Mean Gyro (Overall: {overall_mean:.3f})',
-    line=dict(color='red')
+    line=dict(color='sky blue')
 ))
 
 # IQR 상한선, 범례에 전체 평균 포함
@@ -86,7 +89,7 @@ fig.add_trace(go.Scatter(
     y=iqr_vals,
     mode='lines',
     name=f'IQR Upper Bound (Overall: {overall_iqr_upper:.3f})',
-    line=dict(color='orange', dash='dash')
+    line=dict(color='orange')
 ))
 
 # 구간별 평균값 annotation 추가 (글씨 크기 키움)
