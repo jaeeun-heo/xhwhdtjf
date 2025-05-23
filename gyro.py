@@ -28,24 +28,23 @@ def show_gyro():
     # 2. 통합 평균 및 IQR 계산
     combined_df = combined_df[(combined_df['position'] >= 0) & (combined_df['position'] <= 2.5)]
 
-
-    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
-
     def calc_iqr_upper(group):
         q1 = group.quantile(0.25)
         q3 = group.quantile(0.75)
         return q3 + 1.5 * (q3 - q1)
 
     iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
+    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
 
-    # 전체 평균 계산도 필터링된 데이터 기반
-    overall_mean = mean_df['mean'].mean()
     overall_iqr = iqr_df['upper'].mean()
+    overall_mean = mean_df['mean'].mean()
 
     # 3. Plotly 그래프 생성
     fig = go.Figure()
 
-    # 개별 파일 데이터 (legendonly, alpha 0.5)
+
+
+    # 개별 파일 데이터 (legendonly, alpha 0.8)
     for fname in combined_df['file'].unique():
         file_data = combined_df[combined_df['file'] == fname]
         fig.add_trace(go.Scatter(
@@ -53,7 +52,7 @@ def show_gyro():
             y=file_data['gyro'],
             mode='lines',
             name=fname,
-            line=dict(width=1, color='rgba(100,100,100,0.5)'),
+            line=dict(width=1, color='rgba(100,100,100,0.8)'),
             visible='legendonly'
         ))
 
@@ -62,7 +61,7 @@ def show_gyro():
         x=mean_df['position_bin'],
         y=mean_df['mean'],
         mode='lines',
-        name=f"Mean Gyro (Overall: {overall_mean:.3f})",
+        name=f"Mean Gyro",
         line=dict(color='skyblue', width=3)
     ))
 
@@ -71,16 +70,23 @@ def show_gyro():
         x=iqr_df['position_bin'],
         y=iqr_df['upper'],
         mode='lines',
-        name=f"IQR Upper Bound (Overall: {overall_iqr:.3f})",
-        line=dict(color='orange', width=3, dash='dash')
+        name=f"IQR Upper Bound",
+        line=dict(color='orange', width=1.5, dash='dash')
     ))
 
     fig.update_layout(
         title='📈 Gyro Summary by Position',
         xaxis_title='Position (m)',
         yaxis_title='Gyro',
-        legend=dict(x=1.02, y=1),
-        template='plotly_white'
+        legend=dict(
+            orientation='h',
+            yanchor='bottom',
+            y=-0.3,
+            xanchor='center',
+            x=0.5
+        ),
+        template='plotly_white',
+        margin=dict(b=80)  # 범례 공간 확보
     )
 
     st.plotly_chart(fig, use_container_width=True)
