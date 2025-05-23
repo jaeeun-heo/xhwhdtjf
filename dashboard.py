@@ -54,9 +54,9 @@ iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound)
 # 4. Plotly 시각화
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=mean_line['position_bin'], y=mean_line['mean'],
-                         mode='lines', name='Mean Gyro', line=dict(color='red')))
+                         mode='lines', name='Mean Gyro', line=dict(color='sky blue')))
 fig.add_trace(go.Scatter(x=iqr_df['position_bin'], y=iqr_df['upper'],
-                         mode='lines', name='IQR Upper Bound', line=dict(color='orange', dash='dash')))
+                         mode='lines', name='IQR Upper Bound', line=dict(color='orange')))
 
 fig.update_layout(title='📈 Gyro Mean & IQR Upper Bound by Position',
                   xaxis_title='Position',
