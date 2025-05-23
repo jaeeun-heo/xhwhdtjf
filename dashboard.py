@@ -24,10 +24,10 @@ st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
 
 # 데이터 디렉토리 설정
-data_dir = os.path.join("data", "demo_add")
-pattern = os.path.join(data_dir, "demo_*_add.csv")
-file_list = glob.glob(pattern)
 
+data_dir = os.path.join("data", "demo_add")
+file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # data_1_add.csv, data_2_add.csv, ...
+print(file_list)
 
 st.write(f"데이터 폴더 경로: {data_dir}")
 st.write(f"찾은 파일 개수: {len(file_list)}")
