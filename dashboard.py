@@ -27,7 +27,7 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 
 # 데이터 디렉토리 설정
-data_dir = "C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add/"
+data_dir = os.path.join("data", "demo_add")
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
 
 
@@ -46,6 +46,9 @@ if file_list:
     st.pyplot(fig)
 else:
     st.warning("분석 파일이 없습니다.")
+
+
+
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
     st.session_state.alarm_active = False
