@@ -9,7 +9,7 @@ from PIL import Image
 import os
 import glob
 
-def show_pitch_and_tilt():
+def show_pitch():
     # 1. 파일 로딩
     data_dir = "data/demo_add"
     file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
