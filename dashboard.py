@@ -9,6 +9,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import plotly.express as px
 from io import BytesIO
 from PIL import Image
 import os
@@ -28,38 +29,27 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 data_dir = "data/demo_add"
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
 
-st.title("Sensor Data Visualization")
-
-### Gyro 그래프 ###
-st.header("1. Gyro vs Position")
 combined_df = pd.DataFrame()
 
-for file_path in file_list:
-    df = pd.read_csv(file_path)
-    if 'gyro' in df.columns:
-        combined_df = pd.concat([combined_df, df[['position', 'gyro']]], ignore_index=True)
-        plt.plot(df['position'], df['gyro'], alpha=0.35, label=os.path.basename(file_path).split('.')[0])
+for file in file_list:
+    df = pd.read_csv(file)
+    df['file'] = os.path.basename(file).split('.')[0]
+    if 'position' in df.columns and 'gyro' in df.columns:
+        df['position_bin'] = (df['position'] / 0.1).round() * 0.1
+        combined_df = pd.concat([combined_df, df[['position_bin', 'gyro', 'file']]], ignore_index=True)
 
-combined_df['position_bin'] = (combined_df['position'] / 0.1).round() * 0.1
-gyro_summary = combined_df.groupby('position_bin')['gyro'].mean().reset_index()
-gyro_max = combined_df.groupby('position_bin')['gyro'].max().reset_index()
+# 2. 통계 계산
+summary = combined_df.groupby('position_bin')['gyro'].agg(['mean', 'max', 'min', 'std']).reset_index()
 
-# IQR upper bound
-def calc_iqr_upper_bound(group):
-    q1 = group.quantile(0.25)
-    q3 = group.quantile(0.75)
-    return q3 + 1.5 * (q3 - q1)
+# 3. Plotly 시각화
+fig = px.line(summary, x='position_bin', y='mean', title='📈 Gyro Mean by Position',
+              labels={'position_bin': 'Position', 'mean': 'Gyro Mean'},
+              line_shape='spline')
 
-iqr_upper = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper_bound).reset_index()
+fig.add_scatter(x=summary['position_bin'], y=summary['max'], mode='lines', name='Max Gyro')
+fig.add_scatter(x=summary['position_bin'], y=summary['min'], mode='lines', name='Min Gyro')
 
-plt.plot(gyro_summary['position_bin'], gyro_summary['gyro'], color='red', label='Mean Gyro')
-plt.plot(gyro_max['position_bin'], gyro_max['gyro'], color='green', label='Max Gyro')
-plt.plot(iqr_upper['position_bin'], iqr_upper['gyro'], color='orange', linestyle='--', label='IQR Upper Bound')
-plt.xlabel('Position')
-plt.ylabel('Gyro')
-plt.legend()
-plt.grid(True)
-st.pyplot(plt)
+st.plotly_chart(fig, use_container_width=True)
 
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
 
