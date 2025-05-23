@@ -17,20 +17,19 @@ import glob
 
 
 
-st.write("현재 작업 디렉토리:", os.getcwd())
-
-
 # 페이지 기본 설정
 st.set_page_config(page_title="교량 안전 모니터링 시스템", layout="wide")
 st.title("📊 교량 안전 모니터링 대시보드")
 st.write("모형 교량 위를 주행하는 차량의 스마트폰 센서 데이터를 분석하여 이상을 감지합니다.")
 st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐지 및 시각화를 수행합니다.")
 
-st.write("Current working directory:", os.getcwd())
-
 # 데이터 디렉토리 설정
 data_dir = os.path.join("data", "demo_add")
 file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
+
+st.write(f"데이터 폴더 경로: {data_dir}")
+st.write(f"찾은 파일 개수: {len(file_list)}")
+st.write(f"찾은 파일 목록: {file_list}")
 
 
 if file_list:
