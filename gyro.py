@@ -26,17 +26,17 @@ def show_gyro():
             combined_df = pd.concat([combined_df, df[['position', 'gyro', 'position_bin', 'file']]], ignore_index=True)
 
     # 2. 통합 평균 및 IQR 계산
-    filtered_df = combined_df[(combined_df['position'] >= 0) & (combined_df['position'] <= 2.5)]
+    combined_df = combined_df[(combined_df['position'] >= 0) & (combined_df['position'] <= 2.5)]
 
 
-    mean_df = filtered_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
+    mean_df = combined_df.groupby('position_bin')['gyro'].mean().reset_index(name='mean')
 
     def calc_iqr_upper(group):
         q1 = group.quantile(0.25)
         q3 = group.quantile(0.75)
         return q3 + 1.5 * (q3 - q1)
 
-    iqr_df = filtered_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
+    iqr_df = combined_df.groupby('position_bin')['gyro'].apply(calc_iqr_upper).reset_index(name='upper')
 
     # 전체 평균 계산도 필터링된 데이터 기반
     overall_mean = mean_df['mean'].mean()
