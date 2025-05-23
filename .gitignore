@@ -8,8 +8,8 @@ __pycache__/
 .devcontainer/
 
 # 데이터 파일 무시 (선택 사항: 데이터 파일 크기 문제 시)
-*.csv
-*.xlsx
+#*.csv
+#*.xlsx
 
 # 로그 파일 무시
 *.log
