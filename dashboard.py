@@ -31,6 +31,7 @@ st.markdown("스마트폰에서 수집한 데이터를 기반으로 이상 탐�
 
 
 # gyro_dashboard.py
+st.set_page_config(layout="wide")
 
 import os
 import glob
@@ -38,7 +39,6 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 
-st.set_page_config(layout="wide")
 
 with st.expander("Gyro"):
     # 1. 파일 로딩
