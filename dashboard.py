@@ -38,15 +38,34 @@ else:
     file_names = [os.path.basename(f) for f in files]
     selected_file = st.selectbox("분석 파일 선택", file_names)
 
+
     if selected_file:
+        file_path = os.path.join(data_folder, selected_file)
+        df = pd.read_csv(file_path)
+
         st.write(f"### {selected_file} 데이터 미리보기")
-        placeholder = st.empty()  # 데이터프레임 자리
-        chart_placeholder = st.empty()  # 그래프 자리
+        st.dataframe(df)
 
-        # 아직 분석 결과가 없는 상태이므로 시각화 틀만 생성
-        st.info("분석된 y1 평균 및 IQR 상한값을 계산 후 그래프가 이 영역에 표시됩니다.")
+        # 개별 y1_* 컬럼만 추출 (예: y1_1, y1_2, ..., y1_n)
+        y1_cols = [col for col in df.columns if col.startswith('y1_') and col != 'y1_mean' and col != 'y1_iqr_upper']
 
+        if 'position' in df.columns and y1_cols:
+            st.write("### 개별 자이로 y1 값 (position 기준 선 그래프)")
 
+            fig, ax = plt.subplots(figsize=(10, 4))
+
+            for col in y1_cols:
+                ax.plot(df['position'], df[col], label=col, alpha=0.5)
+
+            ax.set_xlabel("Position (m)")
+            ax.set_ylabel("y1 값")
+            ax.set_title("개별 y1 데이터 (자이로)")
+            ax.legend(loc='upper right', fontsize='small', ncol=2)
+            ax.grid(True)
+
+            st.pyplot(fig)
+        else:
+            st.info("position 또는 개별 y1_* 컬럼이 존재하지 않습니다.")
 
 # 초기 상태 설정
 if 'alarm_active' not in st.session_state:
