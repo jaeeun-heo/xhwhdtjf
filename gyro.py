@@ -122,8 +122,9 @@ def show_gyro():
         columns=range_str_labels + ['Overall (0.0~2.5)']
     )
 
+    summary_table.index.name = 'Position(m)'
+
     # 결과 출력
-    st.markdown("### 📊 Summary Table (per 0.5m interval)")
     st.dataframe(summary_table.style.format("{:.3f}"), width=900)
 
 
