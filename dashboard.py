@@ -10,10 +10,6 @@ from PIL import Image
 import os
 import glob
 
-# Gyro 분석 모듈 import
-from gyro import show_gyro
-
-
 # QR코드 생성
 url = "https://xhwhdtjf-b7n87zyelbtmnhzzjlp6kq.streamlit.app/"
 img = qrcode.make(url)
@@ -83,10 +79,14 @@ for i in range(1, 4):
 
 # --- 분석 탭 버튼 ---
 st.subheader("\U0001F4CB 분석 항목 선택")
-analysis_option = st.radio("분석할 항목을 선택하세요:", ["None", "Gyro"], horizontal=True)
+analysis_option = st.radio("분석할 항목을 선택하세요:", ["Gyro", "Pitch"], horizontal=True)
+
+# Gyro 분석 모듈 import
+from gyro import show_gyro
+from pitch import show_pitch
 
 # --- 버튼 선택 시 해당 분석 화면 실행 ---
 if analysis_option == "Gyro":
     show_gyro()
-else:
-    st.markdown("### 분석 항목을 선택하면 결과가 여기에 표시됩니다.")
+elif analysis_option == "Pitch":
+    show_pitch()
