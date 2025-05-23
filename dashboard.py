@@ -101,7 +101,7 @@ for start, end, mean_val, iqr_val in zip(bin_starts, bin_ends, mean_by_bin.value
         text=f"Mean: {mean_val:.2f}",
         showarrow=False,
         yshift=15,
-        font=dict(color='red', size=16, family="Arial"),
+        font=dict(color='sky blue', size=16, family="Arial"),
         align='center',
         bgcolor='rgba(255,255,255,0.7)',
         bordercolor='red',
