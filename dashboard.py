@@ -91,7 +91,73 @@ st.markdown("### 📊 구간별 평균 값 요약 (0.5m 간격, 행/열 맞춤 �
 st.dataframe(summary_table.style.format("{:.3f}"))
 
 
+# 예시 데이터 (원래 네 combined_df, mean_line, iqr_df 등에서 유도된 것 가정)
+# 아래는 구간별 (0~0.5, 0.5~1.0 ...) 평균과 IQR 상한선 평균값 데이터라고 생각해줘
+summary_table = pd.DataFrame({
+    'bin_group': [0.0, 0.5, 1.0, 1.5, 2.0],
+    'Mean of Gyro': [1.1, 1.2, 1.3, 1.25, 1.4],
+    'Mean of IQR Upper Bound': [1.5, 1.6, 1.7, 1.65, 1.8]
+})
 
+# x 축을 각 구간의 중앙값으로 계산 (ex: 0~0.5 구간은 0.25)
+summary_table['mid_point'] = summary_table['bin_group'] + 0.25
+
+# 그래프용 summary 생성 (기존 summary에서 필요한 부분만)
+summary = pd.DataFrame({
+    'position_bin': np.repeat(summary_table['mid_point'].values, 1),
+    'mean': summary_table['Mean of Gyro'],
+    'upper': summary_table['Mean of IQR Upper Bound']
+})
+
+fig = go.Figure()
+
+# 평균선 그리기
+fig.add_trace(go.Scatter(
+    x=summary_table['mid_point'],
+    y=summary_table['Mean of Gyro'],
+    mode='lines+markers',
+    name='Mean Gyro',
+    line=dict(color='red')
+))
+
+# IQR 상한선 그리기
+fig.add_trace(go.Scatter(
+    x=summary_table['mid_point'],
+    y=summary_table['Mean of IQR Upper Bound'],
+    mode='lines+markers',
+    name='IQR Upper Bound',
+    line=dict(color='orange', dash='dash')
+))
+
+# 텍스트 라벨 추가: 평균선 값
+fig.add_trace(go.Scatter(
+    x=summary_table['mid_point'],
+    y=summary_table['Mean of Gyro'],
+    mode='text',
+    text=[f"{v:.2f}" for v in summary_table['Mean of Gyro']],
+    textposition='top center',
+    showlegend=False
+))
+
+# 텍스트 라벨 추가: IQR 상한선 값
+fig.add_trace(go.Scatter(
+    x=summary_table['mid_point'],
+    y=summary_table['Mean of IQR Upper Bound'],
+    mode='text',
+    text=[f"{v:.2f}" for v in summary_table['Mean of IQR Upper Bound']],
+    textposition='bottom center',
+    showlegend=False
+))
+
+fig.update_layout(
+    title='Gyro Mean and IQR Upper Bound by Position with Labels',
+    xaxis_title='Position (m)',
+    yaxis_title='Gyro',
+    yaxis=dict(range=[0, max(summary_table['Mean of IQR Upper Bound']) * 1.1]),
+    legend=dict(y=0.99, x=0.01)
+)
+
+fig.show()
 
 
 # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성
