@@ -13,26 +13,29 @@ import glob
 # Gyro 분석 모듈 import
 from gyro import show_gyro
 
+
 # QR코드 생성
 url = "https://xhwhdtjf-b7n87zyelbtmnhzzjlp6kq.streamlit.app/"
 img = qrcode.make(url)
 img.save("qr_code.png")
 
-# 초기 상태 설정
-if 'alarm_active' not in st.session_state:
-    st.session_state.alarm_active = False
 
-# 오른쪽 상단 버튼 배치
-col1, col2 = st.columns([8, 2])
-with col2:
-    if st.button("\U0001F6A8 경보 울리기"):
+# --------------------------
+# 💡 대시보드 상단 제목 + 경보 버튼 한 줄 배치
+title_col, button_col = st.columns([9, 1])
+with title_col:
+    st.markdown("# 🚧 스마트 교량 모니터링 대시보드")
+    st.markdown("##### 실시간 센서 데이터 업로드 및 분석")
+
+with button_col:
+    if st.button("\U0001F6A8"):
         st.session_state.alarm_active = not st.session_state.alarm_active
 
     if st.session_state.alarm_active:
-        st.markdown("\U0001F4E2 <strong>경보를 울리는 중입니다.</strong></div>", unsafe_allow_html=True)
+        st.markdown("<span style='color:red;font-weight:bold;'>📢 경보 ON</span>", unsafe_allow_html=True)
     else:
-        st.markdown("\u2705 <strong>경보가 꺼져 있습니다.</strong></div>", unsafe_allow_html=True)
-
+        st.markdown("<span style='color:green;font-weight:bold;'>✅ 경보 OFF</span>", unsafe_allow_html=True)
+# --------------------------
 # 사이드바 - 데이터 업로드
 st.sidebar.header("\U0001F4C2 데이터 업로드")
 uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
@@ -83,5 +86,4 @@ analysis_option = st.radio("분석할 항목을 선택하세요:", ["None", "Gyr
 if analysis_option == "Gyro":
     show_gyro()
 else:
-    st.markdown("\n
-    ### 분석 항목을 선택하면 결과가 여기에 표시됩니다.")
+    st.markdown("### 분석 항목을 선택하면 결과가 여기에 표시됩니다.")

@@ -9,6 +9,10 @@ from PIL import Image
 import os
 import glob
 
+def show_gyro():
+    st.markdown("## 📈 자이로스코프 분석 결과")
+
+
 st.set_page_config(layout="wide")
 
 with st.expander("Gyro"):
