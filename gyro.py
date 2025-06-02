@@ -174,16 +174,17 @@ def show_gyro(uploaded_data=None):
         if count >= 6:
             abnormal_bins.append((bin_start, count))
 
-    # 5) 메시지 출력
+        # 5) 메시지 출력
     if abnormal_bins:
         detected_bins = len(abnormal_bins)  # 발견한 이상 구간 수
-        msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간"]
         total_files = len(uploaded_data)
+
+    # 요약 메시지 - 메시지 박스
+        st.error(f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간")
+
+        # 구간별 상세 메시지 - 마크다운 리스트
         for bin_start, count in abnormal_bins:
             percent = (count / total_files) * 100
-            msg_lines.append(
-                f"- 구간 {bin_start}~{bin_start + 19} cm: 총 {total_files}개 중 {count}개 상한선 초과 ({percent:.1f}%)"
-            )
-        st.error("\n".join(msg_lines))
+            st.markdown(f"- 구간 {bin_start}~{bin_start + 19} cm: 총 {total_files}개 중 {count}개 상한선 초과 ({percent:.1f}%)")
     else:
         st.success("✅ 이상 예측 구간 없음")
