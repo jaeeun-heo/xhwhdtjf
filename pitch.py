@@ -43,20 +43,18 @@ def show_pitch(uploaded_data=None):
 
 
 
-
-    if uploaded_data is not None:
-        for i, df in enumerate(uploaded_data):
-            label = df.attrs.get('filename', f'Uploaded {i+1}')
+## 업로드 파일 9개 이상이면 pitch, tilt 그리기
+    pitch_mean_uploaded = None
+    if uploaded_data is not None and len(uploaded_data) >= 9:
         combined_df_list = []
         for df in uploaded_data:
-        # position_bin 처리 (0.1 단위 반올림)
+            # position_bin 처리 (1단위 반올림)
             df['position_bin'] = (df['position'] / 1).round() * 1
-        # 범위 필터링
+            # 범위 필터링
             df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
             combined_df_list.append(df[['position_bin', 'cumulative_pitch']])
-
-        combined_df = pd.concat(combined_df_list, axis=0)
-        pitch_mean_uploaded = combined_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
+        combined_uploaded_df = pd.concat(combined_df_list, axis=0)
+        pitch_mean_uploaded = combined_uploaded_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
 
     # 4. Plotly 그래프 생성
     fig = go.Figure()
@@ -107,15 +105,13 @@ def show_pitch(uploaded_data=None):
     
     # 업로드 데이터가 있으면 같은 그래프에 추가 (항상 보임, 토글 없음)
     if uploaded_data is not None:
-        for i, df in enumerate(uploaded_data):
-            label = df.attrs.get('filename', f'Uploaded {i+1}')
-            fig.add_trace(go.Scatter(
-                x=pitch_mean_uploaded['position_bin'],
-                y=pitch_mean_uploaded['cumulative_pitch'],
-                mode='lines',
-                name='Uploaded Data Mean Pitch',
-                line=dict(color='red', width=2, dash='dash')
-            ))
+        fig.add_trace(go.Scatter(
+            x=pitch_mean_uploaded['position_bin'],
+            y=pitch_mean_uploaded['cumulative_pitch'],
+            mode='lines',
+            name='Uploaded Data Mean Pitch',
+            line=dict(color='red', width=2, dash='dash')
+        ))
             
     # 레이아웃 설정
     fig.update_layout(
