@@ -235,17 +235,12 @@ def show_pitch(uploaded_data=None):
                     # 이상치 개수는 간단히 1로 처리 (정확히는 파일별 이상 개수 집계 필요 시 로직 추가)
                     abnormal_bins.append((bin_start, 1))
 
-        # 5) 이상치 메시지 출력 (참고로 주신 메시지 코드 활용)
+        # 이상치 감지 및 메시지 출력 부분 (총 11개 구간 기준)
         if abnormal_bins:
             detected_bins = len(abnormal_bins)  # 이상 구간 수
-            msg_lines = [f"🚨 이상 예측 구간 발견: {len(bins)-1}개 구간 중 {detected_bins}개 구간"]
-            total_files = len(uploaded_data)
-            for bin_start, count in abnormal_bins:
-                percent = (count / total_files) * 100
-                msg_lines.append(
-                    f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 ({percent:.1f}%)"
-                )
+            msg_lines = [f"🚨 이상 예측 구간 발견: 총 11개 구간 중 {detected_bins}개 구간"]
+            for bin_start in abnormal_bins:
+                msg_lines.append(f"- 구간 {bin_start}~{bin_start + 19} m")
             st.error("\n".join(msg_lines))
         else:
             st.success("✅ 이상 예측 구간 없음")
-
