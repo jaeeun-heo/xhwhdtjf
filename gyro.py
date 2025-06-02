@@ -39,6 +39,7 @@ def show_gyro(uploaded_data=None):
         fig.add_trace(go.Scatter(
             x=file_data['position_bin'],
             y=file_data['mean'],
+            y=file_data['upper'],
             mode='lines',
             name=f"{fname} (Mean)",
             line=dict(width=1.5, color='gray'),
