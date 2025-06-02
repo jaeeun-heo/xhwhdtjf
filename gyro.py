@@ -18,7 +18,6 @@ def show_gyro(uploaded_data=None):
 
     for file in file_list:
         df = pd.read_csv(file)
-        st.write(f"{file} 읽음, shape: {df.shape}")
         df['file'] = os.path.basename(file).split('.')[0]
         df.rename(columns={
             'position_bin_gyro': 'position_bin',
@@ -105,7 +104,7 @@ def show_gyro(uploaded_data=None):
     overall_mean = mean_summary.mean()
 
     range_labels = sorted(iqr_summary.index)
-    range_str_labels = [f"{r:.1f}~{r+0.5:.1f}" for r in range_labels]
+    range_str_labels = [f"{r:.1f}~{r+20:.1f}" for r in range_labels]
 
     iqr_values = list(iqr_summary.loc[range_labels]) + [overall_iqr]
     mean_values = list(mean_summary.loc[range_labels]) + [overall_mean]
