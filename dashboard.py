@@ -40,19 +40,9 @@ with button_col:
     else:
         st.markdown("<span style='color:green;font-weight:bold;'>✅ 경보 OFF</span>", unsafe_allow_html=True)
 
+
 # --- 분석 탭 버튼 ---
 analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
-
-# Gyro 분석 모듈 import
-from gyro import show_gyro
-from pitch import show_pitch
-
-# --- 버튼 선택 시 해당 분석 화면 실행 ---
-if analysis_option == "Gyro":
-    show_gyro()
-elif analysis_option == "Pitch":
-    show_pitch()
-
 
 
 # --------------------------
@@ -153,17 +143,12 @@ st.sidebar.markdown("---")
 st.sidebar.header("\U0001F4C2 데이터 업로드")
 uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
 
-if uploaded_file:
-    dfs = process_uploaded_file(uploaded_file)
+dfs_uploaded = process_uploaded_file(uploaded_file) if uploaded_file else None
 
-    # 분석 모듈에 dfs 넘기기
-    if analysis_option == "Gyro":
-        show_gyro(dfs)
-    elif analysis_option == "Pitch":
-        show_pitch(dfs)
-else:
-    # 기존 기본 데이터로 분석
-    if analysis_option == "Gyro":
-        show_gyro()
-    elif analysis_option == "Pitch":
-        show_pitch()
+from gyro import show_gyro
+from pitch import show_pitch
+
+if analysis_option == "Gyro":
+    show_gyro(uploaded_data=dfs_uploaded)  # 없으면 None 전달됨
+elif analysis_option == "Pitch":
+    show_pitch(uploaded_data=dfs_uploaded)
