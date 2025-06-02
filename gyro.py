@@ -17,11 +17,8 @@ def show_gyro(uploaded_data=None):
     combined_df = pd.DataFrame()
 
     for file in file_list:
-        print(f"Reading file: {file}")
         df = pd.read_csv(file)
-        print(df.head())
-        print(df.columns)
-        df = pd.read_csv(file)
+        st.write(f"{file} 읽음, shape: {df.shape}")
         df['file'] = os.path.basename(file).split('.')[0]
         df.rename(columns={
             'position_bin_gyro': 'position_bin',
@@ -31,7 +28,7 @@ def show_gyro(uploaded_data=None):
         combined_df = pd.concat([combined_df, df[['position_bin', 'mean', 'upper', 'file']]], ignore_index=True)
 
     # 2. 필터링
-    combined_df = combined_df[(combined_df['position_bin'] >= 0) & (combined_df['position_bin'] <= 2.2)]
+    combined_df = combined_df[(combined_df['position_bin'] >= 0) & (combined_df['position_bin'] <= 220)]
 
     # 3. Plotly 그래프 생성
     fig = go.Figure()
@@ -112,8 +109,6 @@ def show_gyro(uploaded_data=None):
     summary_table.index.name = 'Position(m)'
 
     st.dataframe(summary_table.style.format("{:.3f}"), width=900)
-
-
 
 # ------------------
 # 업로드 데이터
