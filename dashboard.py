@@ -42,8 +42,8 @@ with button_col:
 
 
 # --- 분석 탭 버튼 ---
-st.markdown("##### 분석 항목 선택")  # 텍스트 크기 키움
-analysis_option = st.radio("", ["Gyro", "Pitch"], horizontal=True)
+analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
+
 
 # --------------------------
 # 사이드바
