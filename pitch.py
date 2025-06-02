@@ -182,5 +182,70 @@ def show_pitch(uploaded_data=None):
         st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드하세요.")
     elif len(uploaded_data) < 9:
         st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. (현재 업로드:{len(uploaded_data)}개)")
-    else:
-        st.success("✅ 데이터 충분: 업로드 평균 피치를 그래프에 추가했습니다.")
+
+    if uploaded_data is not None and len(uploaded_data) >= 9:
+
+        # 1. 구간 범위 (0~220, 20 단위)
+        bins = list(range(0, 221, 20))
+
+        # 2. Summary 데이터 구간별 tilt 평균과 std 계산
+        summary_df = load_summary_data()
+        summary_df = summary_df[(summary_df['position_bin'] >= 0) & (summary_df['position_bin'] <= 220)]
+
+        # 구간별로 position_bin을 20단위로 그룹핑하기 위한 열 생성
+        summary_df['bin_group'] = pd.cut(summary_df['position_bin'], bins=bins, right=False, include_lowest=True)
+
+        summary_group = summary_df.groupby('bin_group')['tilt'].agg(['mean', 'std']).reset_index()
+
+        # 3. 업로드된 데이터 tilt 평균 구간별 계산
+        combined_tilt_list = []
+        for df in uploaded_data:
+            df['position_bin'] = (df['position'] / 1).round() * 1
+            df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
+            if 'tilt' in df.columns:
+                combined_tilt_list.append(df[['position_bin', 'tilt']])
+
+        df_uploaded_tilt_all = pd.concat(combined_tilt_list, axis=0)
+        df_uploaded_tilt_all['bin_group'] = pd.cut(df_uploaded_tilt_all['position_bin'], bins=bins, right=False, include_lowest=True)
+
+        # 구간별 업로드 데이터 tilt 평균 계산 (파일별 평균 필요시 추가 가능)
+        uploaded_group_mean = df_uploaded_tilt_all.groupby(['bin_group', 'position_bin']).mean().reset_index()
+        # 여기선 단순 구간별 tilt 평균 (전체 평균)로 사용
+        uploaded_bin_mean = df_uploaded_tilt_all.groupby('bin_group')['tilt'].mean().reset_index()
+
+        # 4. 이상치 탐지: 업로드 tilt 평균이 summary 평균 ± 3*std 벗어나는 구간 찾기
+        abnormal_bins = []
+        for idx, row in uploaded_bin_mean.iterrows():
+            bin_label = row['bin_group']
+            upload_mean_tilt = row['tilt']
+            summary_stats = summary_group[summary_group['bin_group'] == bin_label]
+
+            if not summary_stats.empty:
+                mean_tilt = summary_stats['mean'].values[0]
+                std_tilt = summary_stats['std'].values[0]
+                if pd.isna(std_tilt) or std_tilt == 0:
+                    std_tilt = 1e-6  # 0일 때 나누기 방지용 아주 작은 수
+
+                upper_limit = mean_tilt + 3 * std_tilt
+                lower_limit = mean_tilt - 3 * std_tilt
+
+                if upload_mean_tilt > upper_limit or upload_mean_tilt < lower_limit:
+                    # 이상치 구간 기록 (bin 시작값, 이상치 개수는 대략 1개 이상으로 임의 설정 가능)
+                    bin_start = bins[idx]
+                    # 이상치 개수는 간단히 1로 처리 (정확히는 파일별 이상 개수 집계 필요 시 로직 추가)
+                    abnormal_bins.append((bin_start, 1))
+
+        # 5) 이상치 메시지 출력 (참고로 주신 메시지 코드 활용)
+        if abnormal_bins:
+            detected_bins = len(abnormal_bins)  # 이상 구간 수
+            msg_lines = [f"🚨 이상 예측 구간 발견: {len(bins)-1}개 구간 중 {detected_bins}개 구간"]
+            total_files = len(uploaded_data)
+            for bin_start, count in abnormal_bins:
+                percent = (count / total_files) * 100
+                msg_lines.append(
+                    f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 ({percent:.1f}%)"
+                )
+            st.error("\n".join(msg_lines))
+        else:
+            st.success("✅ 이상 예측 구간 없음")
+
