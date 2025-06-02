@@ -254,7 +254,6 @@ def show_pitch(uploaded_data=None):
                 threshold = 3 * std_tilt
                 percent_exceed = (deviation / threshold) * 100
 
-                st.markdown(f"- **{bin_start}~{bin_start+20}m 구간**: Tilt 평균이 3σ 한계치를 {percent_exceed:.1f}% 초과함 "
-                            f"(업로드: {upload_mean_tilt:.4f}, 기준: {mean_tilt:.4f}±{threshold:.4f})")
+                st.markdown(f"- **{bin_start}~{bin_start+20}m 구간**: Tilt 평균이 3σ 한계치를 {percent_exceed:.1f}% 초과함 ")
         else:
             st.success(f"✅ 이상 예측 구간 없음: 전체 {total_bins}개 구간 모두 정상 범위(±3σ) 내에 있습니다.")
