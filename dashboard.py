@@ -19,6 +19,8 @@ img.save("qr_code.png")
 
 
 st.set_page_config(layout="wide")
+
+
 # --------------------------
 # 💡 대시보드 상단 제목 + 경보 버튼 한 줄 배치
 title_col, button_col = st.columns([9, 1])
@@ -37,24 +39,24 @@ with button_col:
         st.markdown("<span style='color:red;font-weight:bold;'>📢 경보 ON</span>", unsafe_allow_html=True)
     else:
         st.markdown("<span style='color:green;font-weight:bold;'>✅ 경보 OFF</span>", unsafe_allow_html=True)
+
+# --- 분석 탭 버튼 ---
+analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
+
+# Gyro 분석 모듈 import
+from gyro import show_gyro
+from pitch import show_pitch
+
+# --- 버튼 선택 시 해당 분석 화면 실행 ---
+#if analysis_option == "Gyro":
+#    show_gyro()
+#elif analysis_option == "Pitch":
+#    show_pitch()
+
+
+
 # --------------------------
-# 사이드바 - 데이터 업로드
-st.sidebar.header("\U0001F4C2 데이터 업로드")
-uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
-
-if uploaded_file:
-    if uploaded_file.name.endswith(".csv"):
-        df = pd.read_csv(uploaded_file)
-    else:
-        df = pd.read_excel(uploaded_file)
-
-    st.subheader("\U0001F4C4 업로드된 데이터 미리보기")
-    st.dataframe(df.head())
-
-    st.subheader("\U0001F4CA 기본 통계 정보")
-    st.write(df.describe())
-else:
-    st.info("왼쪽 사이드바에서 센서 데이터를 업로드해주세요.")
+# 사이드바
 
 # 모의 데이터 다운로드 버튼
 def make_zip_from_files(file_paths):
@@ -120,15 +122,51 @@ st.sidebar.download_button(
     mime="application/zip"
 )
 
-# --- 분석 탭 버튼 ---
-analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
 
-# Gyro 분석 모듈 import
-from gyro import show_gyro
-from pitch import show_pitch
+# 데이터 업로드
+def process_uploaded_file(uploaded_file):
+    import pandas as pd
+    
+    if uploaded_file.name.endswith('.csv'):
+        df = pd.read_csv(uploaded_file)
+        return [df]
+    elif uploaded_file.name.endswith('.xlsx'):
+        df = pd.read_excel(uploaded_file)
+        return [df]
+    elif uploaded_file.name.endswith('.zip'):
+        import zipfile
+        from io import BytesIO
+        dfs = []
+        with zipfile.ZipFile(BytesIO(uploaded_file.read())) as z:
+            for filename in z.namelist():
+                if filename.endswith('.csv'):
+                    with z.open(filename) as f:
+                        dfs.append(pd.read_csv(f))
+                elif filename.endswith('.xlsx'):
+                    with z.open(filename) as f:
+                        dfs.append(pd.read_excel(f))
+        return dfs
+    else:
+        return []
 
-# --- 버튼 선택 시 해당 분석 화면 실행 ---
-#if analysis_option == "Gyro":
-#    show_gyro()
-#elif analysis_option == "Pitch":
-#    show_pitch()
+
+
+
+
+st.sidebar.header("\U0001F4C2 데이터 업로드")
+uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
+
+if uploaded_file:
+    dfs = process_uploaded_file(uploaded_file)
+
+    # 분석 모듈에 dfs 넘기기
+    if analysis_option == "Gyro":
+        show_gyro(dfs)
+    elif analysis_option == "Pitch":
+        show_pitch(dfs)
+else:
+    # 기존 기본 데이터로 분석
+    if analysis_option == "Gyro":
+        show_gyro()
+    elif analysis_option == "Pitch":
+        show_pitch()
