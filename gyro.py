@@ -40,7 +40,7 @@ def show_gyro(uploaded_data=None):
             y=file_data['mean'],
             mode='lines',
             name=f"{fname} (mean)",
-            line=dict(width=1, color='rgba(135, 206, 235, 0.3)'),
+            line=dict(width=1, color='rgba(135, 206, 235, 0.5)'),
             visible='legendonly'
         ))
         fig.add_trace(go.Scatter(
@@ -48,7 +48,7 @@ def show_gyro(uploaded_data=None):
             y=file_data['upper'],
             mode='lines',
             name=f"{fname} (upper)",
-            line=dict(width=1, color='rgba(255, 165, 0, 0.3)', dash='dash'),
+            line=dict(width=1, color='rgba(255, 165, 0, 0.5)', dash='dash'),
             visible='legendonly'
         ))
     
