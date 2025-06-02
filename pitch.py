@@ -112,5 +112,32 @@ def show_pitch(uploaded_data=None):
 # ------------------
 # 업로드 데이터
     if uploaded_data is not None:
-        add_df = uploaded_data.copy()
-        
+        uploaded_df = pd.DataFrame()
+
+        for idx, df in enumerate(uploaded_data):
+            df = df.copy()
+
+            # 필수 컬럼 있는지 확인
+            if 'position' in df.columns and 'cumulative_pitch' in df.columns:
+                df['position_bin'] = (df['position'] / 0.1).round() * 0.1
+                df['file'] = f"upload_{idx + 1}"
+            
+                uploaded_df = pd.concat([
+                    uploaded_df,
+                    df[['position', 'cumulative_pitch', 'tilt', 'position_bin', 'file']]
+                ], ignore_index=True)
+
+        # 범위 필터링
+        uploaded_df = uploaded_df[(uploaded_df['position'] >= 0) & (uploaded_df['position'] <= 2.5)]
+
+        # 그래프에 추가
+        for fname in uploaded_df['file'].unique():
+            file_data = uploaded_df[uploaded_df['file'] == fname]
+            fig.add_trace(go.Scatter(
+                x=file_data['position'],
+                y=file_data['cumulative_pitch'],
+                mode='lines',
+                name=f"[UP] {fname}",
+                line=dict(width=1.5, color='rgba(255, 100, 100, 0.4)'),
+                visible='legendonly'
+            ))
