@@ -123,5 +123,18 @@ def show_gyro(uploaded_data=None):
 # ------------------
 # 업로드 데이터
     if uploaded_data is not None:
-        add_df = uploaded_data.copy()
-        
+        for i, df in enumerate(uploaded_data):
+            # 파일 이름이 있으면 쓰고, 없으면 인덱스 표시
+            label = df.attrs.get('filename', f'Uploaded {i+1}')
+            fig.add_trace(go.Scatter(
+                x=df['position'],
+                y=df['pitch'],  # pitch 컬럼 예시, 실제 컬럼 맞게 조정 필요
+                mode='lines',
+                name=f'{label}',
+                line=dict(width=1, dash='dot')
+            ))
+    
+    fig.update_layout(title="Gyro Pitch with Summary and Uploaded Data",
+                      xaxis_title="Position",
+                      yaxis_title="Pitch")
+    st.plotly_chart(fig)
