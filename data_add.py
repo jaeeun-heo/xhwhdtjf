@@ -11,7 +11,7 @@ summary_save_dir = os.path.join(folder, "summary")
 os.makedirs(summary_save_dir, exist_ok=True)
 set_folders = sorted(glob.glob(os.path.join(folder, 'set*')))
 
-bin_size_gyro = 50
+bin_size_gyro = 10
 bin_size_pitch_tilt = 1
 
 # === 반복 시작 ===
