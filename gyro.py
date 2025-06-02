@@ -71,7 +71,8 @@ def show_gyro(uploaded_data=None):
         yaxis_title='Gyro',
         width=900,
         height=500,
-        xaxis=dict(range=[0, 2.6]),
+        xaxis=dict(range=[0, 2.2]),
+        yaxis=dict(range=[0, 0.5]),
         legend=dict(
             orientation='h',
             yanchor='bottom',
