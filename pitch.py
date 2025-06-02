@@ -62,7 +62,7 @@ def show_pitch(uploaded_data=None):
         y=merged_df['pitch_mean'],
         mode='lines',
         name='Pitch Mean',
-        line=dict(color='mediumslateblue', width=2.5)
+        line=dict(color='lightskyblue', width=2.5)
     ))
 
     # Tilt 음영 영역 추가
