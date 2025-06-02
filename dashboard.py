@@ -163,7 +163,7 @@ dfs_uploaded = st.session_state.dfs_uploaded if st.session_state.dfs_uploaded el
 
 # 전체 삭제 버튼
 if dfs_uploaded:
-    if st.sidebar.button("🗑️ 업로드 데이터 전체체 삭제"):
+    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제"):
         st.session_state.dfs_uploaded = []
         st.experimental_rerun()
 
@@ -174,6 +174,8 @@ from gyro import show_gyro
 from pitch import show_pitch
 
 if analysis_option == "Gyro":
-    show_gyro(uploaded_data=dfs_uploaded)
+    if dfs_uploaded:   # 데이터 있을 때만 호출
+        show_gyro(uploaded_data=dfs_uploaded)
 elif analysis_option == "Pitch":
-    show_pitch(uploaded_data=dfs_uploaded)
+    if dfs_uploaded:   # 데이터 있을 때만 호출
+        show_pitch(uploaded_data=dfs_uploaded)
