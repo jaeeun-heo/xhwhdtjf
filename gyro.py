@@ -38,13 +38,21 @@ def show_gyro(uploaded_data=None):
         file_data = combined_df[combined_df['file'] == fname]
         fig.add_trace(go.Scatter(
             x=file_data['position_bin'],
-            y_1=file_data['mean'],
-            y_2=file_data['upper'],
+            y=file_data['mean'],
             mode='lines',
             name=f"{fname} (Mean)",
             line=dict(width=1.5, color='gray'),
             visible='legendonly'
         ))
+        fig.add_trace(go.Scatter(
+            x=file_data['position_bin'],
+            y=file_data['upper'],
+            mode='lines',
+            name=f"{fname} (Mean)",
+            line=dict(width=1.5, color='gray'),
+            visible='legendonly'
+        ))
+    
 
     # 평균선 추가
     mean_df = combined_df.groupby('position_bin')['mean'].mean().reset_index()
