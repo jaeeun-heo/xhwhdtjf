@@ -28,7 +28,7 @@ def show_pitch(uploaded_data=None):
             ], ignore_index=True)
 
     # 2. 유효한 구간으로 자르기 (0~2.5m 기준, 0.1 bin당 25개 구간)
-    combined_df = combined_df[(combined_df['position_bin'] >= 0.0) & (combined_df['position_bin'] <= 2.5)]
+    combined_df = combined_df[(combined_df['position_bin'] >= 0.0) & (combined_df['position_bin'] <= 220)]
 
     # 3. 평균 pitch 및 tilt 계산
     pitch_df = combined_df.groupby('position_bin')['pitch'].mean().reset_index(name='pitch_mean').round(3)
