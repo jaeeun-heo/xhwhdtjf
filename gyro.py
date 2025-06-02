@@ -11,6 +11,8 @@ import glob
 
 def show_gyro(uploaded_data=None):
 
+    st.write("🔥 여긴 도달했는가?")
+
     # 1. 파일 로딩
     data_dir = "data/normal/summary"
     file_list = glob.glob(os.path.join(data_dir, "summary_gyro_set[0-5].csv"))
