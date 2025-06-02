@@ -9,14 +9,11 @@ from PIL import Image
 import os
 import glob
 
-def show_pitch(uploaded_data=None):
-
-    # 1. summary_pitch_tilt_set 파일들 로딩
+def load_summary_data():
     data_dir = "data/normal/summary"
     file_list = glob.glob(os.path.join(data_dir, "summary_pitch_tilt_set[0-5].csv"))
 
     combined_df = pd.DataFrame()
-
     for file in file_list:
         df = pd.read_csv(file)
         df['file'] = os.path.basename(file).split('.')[0]
@@ -27,27 +24,24 @@ def show_pitch(uploaded_data=None):
         }, inplace=True)
         combined_df = pd.concat([combined_df, df[['position_bin', 'pitch', 'tilt', 'file']]], ignore_index=True)
 
-
-    # 2. 유효한 구간으로 자르기 (0~2.5m 기준, 0.1 bin당 25개 구간)
+    # 유효 범위 필터링
     combined_df = combined_df[(combined_df['position_bin'] >= 0.0) & (combined_df['position_bin'] <= 220)]
 
-    # 3. 평균 pitch 및 tilt 계산
+    # 평균 계산
     pitch_df = combined_df.groupby('position_bin')['pitch'].mean().reset_index(name='pitch_mean').round(3)
     tilt_df = combined_df.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean').round(3)
 
     merged_df = pd.merge(pitch_df, tilt_df, on='position_bin')
-    scale = 0.25  # tilt 스케일 조정
+    scale = 0.25
     merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] * scale
     merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] * scale
 
     return combined_df, merged_df
 
-
-
-## 업로드 파일 9개 이상이면 pitch, tilt 그리기
 def process_uploaded_data(uploaded_data):
     if uploaded_data is None or len(uploaded_data) == 0:
         return None
+
     combined_list = []
     for df in uploaded_data:
         # position_bin 1단위 반올림
@@ -77,16 +71,13 @@ def show_pitch(uploaded_data=None):
     else:
         st.success("✅ 데이터 충분: 분석을 시행합니다.")
 
-
-
-
-    # 4. Plotly 그래프 생성
+    # 3. 그래프 생성
     fig = go.Figure()
 
     # --- 개별 summary 파일 토글 ---
     with st.expander("📁 개별 Summary 파일 보기 (Toggle)", expanded=False):
-        for fname in combined_df['file'].unique():
-            file_data = combined_df[combined_df['file'] == fname]
+        for fname in combined_summary_df['file'].unique():
+            file_data = combined_summary_df[combined_summary_df['file'] == fname]
             fig.add_trace(go.Scatter(
                 x=file_data['position_bin'],
                 y=file_data['pitch'],
@@ -98,8 +89,8 @@ def show_pitch(uploaded_data=None):
 
     # 평균 pitch 선 추가
     fig.add_trace(go.Scatter(
-        x=merged_df['position_bin'],
-        y=merged_df['pitch_mean'],
+        x=merged_summary_df['position_bin'],
+        y=merged_summary_df['pitch_mean'],
         mode='lines',
         name='Pitch Mean',
         line=dict(color='lightskyblue', width=2.5)
@@ -107,8 +98,8 @@ def show_pitch(uploaded_data=None):
 
     # Tilt 음영 영역 추가
     fig.add_trace(go.Scatter(
-        x=merged_df['position_bin'],
-        y=merged_df['tilt_upper'],
+        x=merged_summary_df['position_bin'],
+        y=merged_summary_df['tilt_upper'],
         mode='lines',
         name='Tilt Upper',
         line=dict(color='mediumslateblue', width=0),
@@ -116,8 +107,8 @@ def show_pitch(uploaded_data=None):
     ))
 
     fig.add_trace(go.Scatter(
-        x=merged_df['position_bin'],
-        y=merged_df['tilt_lower'],
+        x=merged_summary_df['position_bin'],
+        y=merged_summary_df['tilt_lower'],
         mode='lines',
         name='Tilt Lower',
         line=dict(color='mediumslateblue', width=0),
@@ -125,8 +116,7 @@ def show_pitch(uploaded_data=None):
         fillcolor='rgba(123, 104, 238, 0.6)',
         showlegend=True
     ))
-    
-    
+
     # 업로드 데이터가 충분하면 겹쳐서 선 추가
     if pitch_mean_uploaded is not None:
         fig.add_trace(go.Scatter(
@@ -136,7 +126,7 @@ def show_pitch(uploaded_data=None):
             name='Uploaded Data Mean Pitch',
             line=dict(color='red', width=2, dash='dash')
         ))
-            
+
     # 레이아웃 설정
     fig.update_layout(
         title='🎯 Cumulative Pitch (Mean) with Tilt Band',
@@ -157,16 +147,5 @@ def show_pitch(uploaded_data=None):
         margin=dict(b=80)
     )
 
-    # 5. Streamlit 출력
+    # Streamlit에 그래프 출력
     st.plotly_chart(fig, use_container_width=True)
-
-# ------------------
-    # 1) 업로드 데이터 9개인지 확인
-    if uploaded_data is None or len(uploaded_data) == 0:
-        st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드하세요.")
-        return
-    elif len(uploaded_data) < 9:
-        st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. (현재 업로드:{len(uploaded_data)}개)")
-        return
-    else:
-        st.success("✅ 데이터 충분: 분석을 시행합니다.")
