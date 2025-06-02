@@ -128,7 +128,7 @@ def show_pitch(uploaded_data=None):
                 ], ignore_index=True)
 
         # 범위 필터링
-        uploaded_df = uploaded_df[(uploaded_df['position'] >= 0) & (uploaded_df['position'] <= 2.5)]
+        uploaded_df = uploaded_df[(uploaded_df['position'] >= 0) & (uploaded_df['position'] <= 220)]
 
         # 그래프에 추가
         for fname in uploaded_df['file'].unique():
