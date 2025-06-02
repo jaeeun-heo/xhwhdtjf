@@ -177,7 +177,7 @@ def show_gyro(uploaded_data=None):
     # 5) 메시지 출력
     if abnormal_bins:
         detected_bins = len(abnormal_bins)  # 발견한 이상 구간 수
-        msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개"]
+        msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간"]
         total_files = len(uploaded_data)
         for bin_start, count in abnormal_bins:
             percent = (count / total_files) * 100
