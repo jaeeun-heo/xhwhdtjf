@@ -127,14 +127,14 @@ def show_pitch(uploaded_data=None):
             y=pitch_mean_uploaded['pitch_mean'],
             mode='lines',
             name='Uploaded Data Mean Pitch',
-            line=dict(color='red', width=2, dash='dash')
+            line=dict(color='Green', width=1.5, dash='dash')
         ))
         fig.add_trace(go.Scatter(
             x=uploaded_merged['position_bin'],
             y=uploaded_merged.get('tilt_upper', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Upper',
-            line=dict(color='salmon', width=0),
+            line=dict(color='Spring Green', width=0),
             showlegend=False
         ))
 
@@ -143,7 +143,7 @@ def show_pitch(uploaded_data=None):
             y=uploaded_merged.get('tilt_lower', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Lower',
-            line=dict(color='salmon', width=0),
+            line=dict(color='Spring Green', width=0),
             fill='tonexty',
             fillcolor='rgba(255, 99, 71, 0.4)',
             showlegend=True
@@ -157,7 +157,7 @@ def show_pitch(uploaded_data=None):
         width=900,
         height=500,
         xaxis=dict(range=[-5, 225]),
-        yaxis=dict(range=[-0.03, 0.03]),
+        yaxis=dict(range=[-0.05, 0.05]),
         legend=dict(
             orientation='h',
             yanchor='bottom',
