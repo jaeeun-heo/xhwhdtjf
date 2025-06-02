@@ -16,6 +16,7 @@ img = qrcode.make(url)
 img.save("qr_code.png")
 
 
+st.set_page_config(layout="wide")
 # --------------------------
 # 💡 대시보드 상단 제목 + 경보 버튼 한 줄 배치
 title_col, button_col = st.columns([9, 1])
@@ -85,7 +86,7 @@ from gyro import show_gyro
 from pitch import show_pitch
 
 # --- 버튼 선택 시 해당 분석 화면 실행 ---
-if analysis_option == "Gyro":
-    show_gyro()
-elif analysis_option == "Pitch":
-    show_pitch()
+#if analysis_option == "Gyro":
+#    show_gyro()
+#elif analysis_option == "Pitch":
+#    show_pitch()

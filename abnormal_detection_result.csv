@@ -1,0 +1,11 @@
+filename,anomaly_ratio,detected
+anomal_100.csv,0.3,True
+anomal_101.csv,0.07407407407407407,False
+anomal_102.csv,0.020833333333333332,False
+anomal_103.csv,0.1527777777777778,True
+anomal_104.csv,0.10606060606060606,True
+anomal_105.csv,0.1111111111111111,True
+anomal_106.csv,0.125,True
+anomal_107.csv,0.6,True
+anomal_108.csv,0.08333333333333333,False
+anomal_109.csv,0.12962962962962962,True

@@ -7,22 +7,25 @@ import matplotlib.pyplot as plt
 from scipy.stats import zscore
 from scipy.signal import find_peaks
 
+base_dir = 'data'
 
-# 경로 설정
-data_dir = "C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/"
-file_list = glob.glob(os.path.join(data_dir, "demo_*.csv"))  # demo_1.csv, demo_2.csv, ...
+# 원본 폴더 경로
+normal_dir = os.path.join(base_dir, 'normal')
+anomal_dir = os.path.join(base_dir, 'anomal')
 
-# 파일 반복 처리
-for file_path in file_list:
-    # 파일 이름 추출
-    filename = os.path.basename(file_path).split('.')[0]
+def load_files(data_type):
+    folder = normal_dir if data_type == 'normal' else anomal_dir
+    print(f"[INFO] Looking into folder: {folder}")
 
-    # 파일 불러오기
+    file_list = []
+    set_folders = glob.glob(os.path.join(folder, 'set10'))  # set0, set1, ...
+    for set_folder in set_folders:
+        files = glob.glob(os.path.join(set_folder, 'raw_anomal_*.csv'))
+        file_list.extend(files)
+    return file_list
+
+def analyze_and_save(file_path, data_type):
     df = pd.read_csv(file_path)
-    print(df.columns.tolist())
-    df_original = df.copy()
-
-
 
 # time을 기준으로 그래프를 그림
     plt.figure(figsize=(15, 10))
@@ -57,14 +60,9 @@ for file_path in file_list:
     plt.grid(True)
 
     plt.tight_layout()
-
-#    plt.show()
-    plt.show()
-
+    plt.close()
 
     df_original = df.copy()
-
-
 
 # 1. gyro x, y, z 벡터 크기 계산
     gyro_combined = np.sqrt(df['gyro_x']**2 + df['gyro_y']**2 + df['gyro_z']**2)
@@ -137,16 +135,20 @@ for file_path in file_list:
         plt.axhline(y=threshold, color='r', linestyle='--', label='Threshold')
 
         for start, end in shock_regions:
-            plt.axvspan(df['time'].iloc[start], df['time'].iloc[end], color='red', alpha=0.2)
+            df_len = len(df)
+            safe_start = min(start, df_len - 1)
+            safe_end = min(end, df_len - 1)
+            plt.axvspan(df['time'].iloc[safe_start], df['time'].iloc[safe_end], color='red', alpha=0.2)
+
 
         plt.axvline(stable_start_time, color='green', linestyle='--', label='Stable Start')
         plt.axvline(stable_end_time, color='blue', linestyle='--', label='Stable End')
         plt.xlabel('Time (s)')
         plt.ylabel('Gyro Magnitude')
-        plt.title('방지턱 충격 이후 안정 구간 추출')
+        plt.title('방지턱 감지로 데이터 절단')
         plt.grid(True)
         plt.legend()
-        plt.show()
+        plt.close()
 
 
 
@@ -183,9 +185,9 @@ for file_path in file_list:
     plt.subplot(3, 1, 1)
     plt.plot(df_original['time'], df_original['accel_y'], label='Original accel_y', color='orange', alpha=0.5)
     plt.plot(df_clean['time'], df_clean['accel_y'], label='Cleaned accel_y', color='blue')
-    plt.title('accel_y: Original vs Z-score Cleaned')
+    plt.title('accel_y')
     plt.xlabel('Time')
-    plt.ylabel('Acceleration Y')
+    plt.ylabel('Acceleration')
     plt.legend()
     plt.grid(True)
 
@@ -197,9 +199,9 @@ for file_path in file_list:
     plt.plot(df_clean['time'], df_clean['gyro_y'], label='Cleaned gyro_y', color='green')
     plt.plot(df_original['time'], df_original['gyro_z'], label='Original gyro_z', color='plum', alpha=0.4)
     plt.plot(df_clean['time'], df_clean['gyro_z'], label='Cleaned gyro_z', color='purple')
-    plt.title('Gyroscope (x, y, z): Original vs Cleaned')
+    plt.title('gyro_x_y_z')
     plt.xlabel('Time')
-    plt.ylabel('Gyro')
+    plt.ylabel('Gyroscope')
     plt.legend()
     plt.grid(True)
 
@@ -209,9 +211,9 @@ for file_path in file_list:
     plt.plot(df_clean['time'], df_clean['pitch'], label='pitch', color='green')
     plt.plot(df_original['time'], df_original['roll'], label='Original roll', color='salmon', alpha=0.4)
     plt.plot(df_clean['time'], df_clean['roll'], label='roll', color='red')
-    plt.title('pitch and roll (not cleaned)')
+    plt.title('pitch and roll')
     plt.xlabel('Time')
-    plt.ylabel('Angle (degrees)')
+    plt.ylabel('Orientation')
     plt.legend()
     plt.grid(True)
 
@@ -221,26 +223,48 @@ for file_path in file_list:
 
 
 ### x축: 위치 추정
-### 이 부분 나중에 방지턱 감지하는 것으로 수정 필요###
-# 시간 간격 (시간이 일정하지 않다면 각 시간 간격을 구해줘야 함)
-    dt = np.diff(df_clean['time'])
+# 시간, 가속도 배열 추출
+    time = df_clean['time'].to_numpy()                        # 길이: N
+    accel = df_clean['accel_y'].to_numpy() * 9.81             # 길이: N
 
-# 가속도(accel_y) 적분하여 속도 계산 (속도는 적분 값이므로, 초기 속도를 0으로 설정)
-    velocity = np.cumsum(df_clean['accel_y'].iloc[:-1] * dt)  # 첫 번째 값은 누락되어 있으므로 dt만큼 길이를 맞춰줍니다.
-    velocity = np.insert(velocity, 0, 0)  # 초기 속도는 0으로 설정
+    # 시간 차이 계산
+    dt = np.diff(time)                                        # 길이: N-1
 
-# 속도 적분하여 위치 계산 (위치는 적분 값)
-    position = np.cumsum(velocity[:-1] * dt)  # 마찬가지로 길이를 맞추기 위해 적분합니다.
-    position = np.insert(position, 0, 0)  # 초기 위치는 0으로 설정
+    # 총 이동 거리 (고정값)과 총 시간 계산
+    total_distance = 2.19  # meters
+    total_time = time[-1] - time[0]  # seconds
 
-#음수로 향하면 휴대폰 거꾸로 든 것
+    # --- 1차 적분: 초기속도 0 기준 속도 계산 (사다리꼴 적분법) ---
+    velocity_temp = np.zeros_like(accel)                      # 길이: N
+    for i in range(1, len(accel)):
+        velocity_temp[i] = velocity_temp[i-1] + 0.5 * (accel[i-1] + accel[i]) * dt[i-1]
+
+    # 측정된 평균 속도
+    measured_avg_velocity = np.mean(velocity_temp)
+
+    # 실제 평균 속도
+    real_avg_velocity = total_distance / total_time
+
+    # 초기속도 보정값 (적분 상수)
+    initial_velocity = real_avg_velocity - measured_avg_velocity
+
+    # 보정된 속도 = temp 속도 + 상수
+    velocity = velocity_temp + initial_velocity
+
+    # --- 2차 적분: 위치 계산 (사다리꼴 적분법) ---
+    position = np.zeros_like(time)                            # 길이: N
+    for i in range(1, len(time)):
+        position[i] = position[i-1] + 0.5 * (velocity[i-1] + velocity[i]) * dt[i-1]
+
+
+    #음수로 향하면 휴대폰 거꾸로 든 것
     plt.figure(figsize=(15, 10))
 
     plt.subplot(3, 1, 1)
     plt.plot(df_clean['time'], df_clean['accel_y'])
-    plt.title('Velocity (from accel_y)')
+    plt.title('Acceleration (from accel_y)')
     plt.xlabel('Time')
-    plt.ylabel('Velocity (m/s)')
+    plt.ylabel('Accelerometer (m/s)')
     plt.grid()
 
     plt.subplot(3, 1, 2)
@@ -258,22 +282,22 @@ for file_path in file_list:
     plt.grid()
 
     plt.tight_layout()
-    plt.show()
+    plt.close()
 
 
 # 마지막 위치를 3m로 맞추기 위해 보정
 ### 0시작에서 3끝으로 보정한 것(반전시킴)
-    position = position * (2.5 / position[-1])
+    position = position * (219 / position[-1])
 
 # 시간에 따른 위치 그래프 그리기
     plt.figure(figsize=(10, 6))
-    plt.plot(df_clean['time'], position, label='position (m)', color='orange')
+    plt.plot(df_clean['time'], position, label='position (cm)', color='orange')
     plt.title('position over Time')
     plt.xlabel('Time (s)')
-    plt.ylabel('position (m)')
+    plt.ylabel('position (cm)')
     plt.grid(True)
     plt.legend()
-    plt.show()
+    plt.close()
 
 # 새로운 'position' 열 추가
     df_clean['position'] = position
@@ -299,7 +323,7 @@ for file_path in file_list:
     plt.title('Combined Gyroscope Magnitude Over Time')
     plt.grid(True)
     plt.legend()
-#    plt.show()
+    #plt.show()
     plt.close()
 
 
@@ -362,14 +386,41 @@ for file_path in file_list:
     plt.show()
 
 
-### 새로운 파일로 저장
-# 저장할 폴더 경로 지정
-    output_dir = "C:/Users/yello/OneDrive/문서/경기대/25-1/캡스톤/xhwhdtjf/data/demo_add"
+    # 분석 결과 저장 경로 구성
+    normal_add_dir = os.path.join(base_dir, 'normal_add')
+    anomal_add_dir = os.path.join(base_dir, 'anomal_add')
+    
+    # 분석 결과 저장 경로 구성 (덮어쓰기)
+    if data_type == 'normal':
+        save_base = normal_dir
+        original_base = normal_dir
+    else:
+        save_base = anomal_dir
+        original_base = anomal_dir
 
-# 저장 파일 이름 생성 및 경로 지정
-    base_name = os.path.splitext(os.path.basename(file_path))[0]
-    new_name = f"{base_name}_add.csv"
-    output_path = os.path.join(output_dir, new_name)
+    rel_path = os.path.relpath(file_path, original_base)  # 예: set0/normal_1.csv
+    set_folder, filename = os.path.split(rel_path)        # ('set0', 'normal_1.csv')
 
-# 저장
-    df_clean.to_csv(output_path, index=False)
+    if data_type == 'anomal' and filename.startswith('raw_anomal_'):
+        filename = filename.replace('raw_anomal_', 'anomal_')
+
+    save_folder = os.path.join(save_base, set_folder)     # 원래 위치
+    os.makedirs(save_folder, exist_ok=True)
+
+    save_path = os.path.join(save_folder, filename)       # 이름 그대로 저장
+    df_clean.to_csv(save_path, index=False)
+    print(f"[INFO] Overwritten: {save_path}")
+    
+def main():
+    normal_files = load_files('normal')
+    for file_path in normal_files:
+        print(f"[INFO] Analyzing {file_path}")
+        analyze_and_save(file_path, 'normal')
+
+    anomal_files = load_files('anomal')
+    for file_path in anomal_files:
+        print(f"[INFO] Analyzing {file_path}")
+        analyze_and_save(file_path, 'anomal')
+
+if __name__ == "__main__":
+    main()

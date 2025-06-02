@@ -11,8 +11,8 @@ import glob
 
 def show_pitch():
     # 1. 파일 로딩
-    data_dir = "data/demo_add"
-    file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
+    data_dir = "data/normal"
+    file_list = glob.glob(os.path.join(data_dir, "normal_*.csv"))
 
     combined_df = pd.DataFrame()
 
@@ -35,7 +35,7 @@ def show_pitch():
     tilt_df = combined_df.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean').round(3)
 
     merged_df = pd.merge(pitch_df, tilt_df, on='position_bin')
-    scale = 0.05  # tilt 스케일 조정
+    scale = 0.075  # tilt 스케일 조정
     merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] * scale
     merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] * scale
 

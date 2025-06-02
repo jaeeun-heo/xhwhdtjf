@@ -12,8 +12,8 @@ import glob
 def show_gyro():
 
     # 1. 파일 로딩
-    data_dir = "data/demo_add"
-    file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))
+    data_dir = "data/normal"
+    file_list = glob.glob(os.path.join(data_dir, "normal_*.csv"))
 
     combined_df = pd.DataFrame()
 
@@ -127,5 +127,3 @@ def show_gyro():
     st.dataframe(summary_table.style.format("{:.3f}"), width=900)
 
 
-
-    # 같은 방식으로 pitch, roll, tilt 등 추가 그래프도 반복해서 구성

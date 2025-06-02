@@ -2,20 +2,31 @@ import pandas as pd
 import os
 import glob
 import matplotlib.pyplot as plt
+##통합본 파일11111##
+base_dir = 'data'
 
-# 데이터 디렉토리 설정
-data_dir = os.path.join("data", "demo_add")
-file_list = glob.glob(os.path.join(data_dir, "demo_*_add.csv"))  # demo_1_add.csv, demo_2_add.csv, ...
+def load_add_files(data_type):  # data_type: 'normal_add' or 'anomal_add'
+    folder = os.path.join(base_dir, data_type)
+    print(f"[INFO] Looking into folder: {folder}")
 
-# 파일별로 그래프 그리기
-for file_path in file_list:
-    # 파일 읽기
-    df = pd.read_csv(file_path)
-    
-    # 파일 이름에서 숫자 부분만 추출 (demo_1_add, demo_2_add, ...)
-    base_name = os.path.basename(file_path).split('.')[0]  # 예: demo_1_add
+    file_list = []
+    set_folders = glob.glob(os.path.join(folder, 'set*'))
+    for set_folder in set_folders:
+        files = glob.glob(os.path.join(set_folder, f'{data_type}_*.csv'))
+        file_list.extend(files)
+
+    print(f"[INFO] Found {len(file_list)} files.")
+    return sorted(file_list)
+
+
+# 1) 원하는 데이터 타입 설정
+data_type = 'normal_add'  # 또는 'anomal_add'
+
+# 2) 파일 리스트 불러오기
+file_list = load_add_files(data_type)
 
     # 그래프 1: x = position, y = gyro
+def plot_individual_graphs(df, base_name):
     plt.figure(figsize=(10, 6))  # 그래프 크기 설정
     plt.plot(df['position'], df['gyro'], label='Gyro', color='b')
     plt.xlabel('Position')
