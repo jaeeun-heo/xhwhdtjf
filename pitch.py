@@ -12,7 +12,7 @@ import glob
 def show_pitch(uploaded_data=None):
 
     # 1. 파일 로딩
-    data_dir = "data/normal"
+    data_dir = "data/normal/set0"
     file_list = glob.glob(os.path.join(data_dir, "normal_*.csv"))
 
     combined_df = pd.DataFrame()
