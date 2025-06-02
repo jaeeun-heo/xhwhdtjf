@@ -141,9 +141,13 @@ def process_uploaded_file(uploaded_file):
 
 st.sidebar.markdown("---")
 st.sidebar.header("\U0001F4C2 데이터 업로드")
-uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
+uploaded_files = st.sidebar.file_uploader(
+    "센서 데이터를 업로드하세요 (여러 개 CSV 가능)", 
+    type=["csv"], 
+    accept_multiple_files=True
+)
+dfs_uploaded = [pd.read_csv(f) for f in uploaded_files] if uploaded_files else None
 
-dfs_uploaded = process_uploaded_file(uploaded_file) if uploaded_file else None
 
 from gyro import show_gyro
 from pitch import show_pitch
