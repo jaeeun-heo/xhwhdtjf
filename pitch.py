@@ -70,10 +70,14 @@ def show_pitch(uploaded_data=None):
             tilt_mean_uploaded = df_uploaded_tilt_all.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean')
             pitch_mean_uploaded = pitch_mean_uploaded.rename(columns={'cumulative_pitch': 'pitch_mean'})
             uploaded_merged = pd.merge(pitch_mean_uploaded, tilt_mean_uploaded, on='position_bin', how='inner')
-            uploaded_merged['tilt_upper'] = uploaded_merged['pitch_mean'] + uploaded_merged['tilt_mean'] * scale
-            uploaded_merged['tilt_lower'] = uploaded_merged['pitch_mean'] - uploaded_merged['tilt_mean'] * scale
+            uploaded_merged['tilt_upper'] = uploaded_merged['pitch_mean'] + uploaded_merged['tilt_mean'] * 0.25
+            uploaded_merged['tilt_lower'] = uploaded_merged['pitch_mean'] - uploaded_merged['tilt_mean'] * 0.25
         else:
             uploaded_merged = pitch_mean_uploaded.copy()
+            
+            
+            
+            
     # ✅ 그래프 그리기
     fig = go.Figure()
 
