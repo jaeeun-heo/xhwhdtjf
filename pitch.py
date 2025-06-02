@@ -40,6 +40,24 @@ def show_pitch(uploaded_data=None):
     merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] * scale
     merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] * scale
 
+
+
+
+
+    if uploaded_data is not None:
+        for i, df in enumerate(uploaded_data):
+            label = df.attrs.get('filename', f'Uploaded {i+1}')
+        combined_df_list = []
+        for df in uploaded_data:
+        # position_bin 처리 (0.1 단위 반올림)
+            df['position_bin'] = (df['position'] / 1).round() * 1
+        # 범위 필터링
+            df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
+            combined_df_list.append(df[['position_bin', 'cumulative_pitch']])
+
+        combined_df = pd.concat(combined_df_list, axis=0)
+        pitch_mean_uploaded = combined_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
+
     # 4. Plotly 그래프 생성
     fig = go.Figure()
 
@@ -92,14 +110,12 @@ def show_pitch(uploaded_data=None):
         for i, df in enumerate(uploaded_data):
             label = df.attrs.get('filename', f'Uploaded {i+1}')
             fig.add_trace(go.Scatter(
-                x=df['position'],   # position 그대로 사용 (필요시 버킷 처리 가능)
-                y=df['cumulative_pitch'],
+                x=pitch_mean_uploaded['position_bin'],
+                y=pitch_mean_uploaded['cumulative_pitch'],
                 mode='lines',
-                name=label,
-                line=dict(width=1, dash='dot'),
-                opacity=0.7
+                name='Uploaded Data Mean Pitch',
+                line=dict(color='red', width=2, dash='dash')
             ))
-            
             
     # 레이아웃 설정
     fig.update_layout(
@@ -125,34 +141,12 @@ def show_pitch(uploaded_data=None):
     st.plotly_chart(fig, use_container_width=True)
 
 # ------------------
-# 업로드 데이터
-    if uploaded_data is not None:
-        uploaded_df = pd.DataFrame()
-
-        for idx, df in enumerate(uploaded_data):
-            df = df.copy()
-
-            # 필수 컬럼 있는지 확인
-            if 'position' in df.columns and 'cumulative_pitch' in df.columns:
-                df['position_bin'] = (df['position'] / 0.1).round() * 0.1
-                df['file'] = f"upload_{idx + 1}"
-            
-                uploaded_df = pd.concat([
-                    uploaded_df,
-                    df[['position', 'cumulative_pitch', 'tilt', 'position_bin', 'file']]
-                ], ignore_index=True)
-
-        # 범위 필터링
-        uploaded_df = uploaded_df[(uploaded_df['position'] >= 0) & (uploaded_df['position'] <= 220)]
-
-        # 그래프에 추가
-        for fname in uploaded_df['file'].unique():
-            file_data = uploaded_df[uploaded_df['file'] == fname]
-            fig.add_trace(go.Scatter(
-                x=file_data['position'],
-                y=file_data['cumulative_pitch'],
-                mode='lines',
-                name=f"[UP] {fname}",
-                line=dict(width=1.5, color='rgba(255, 100, 100, 0.4)'),
-                visible='legendonly'
-            ))
+    # 1) 업로드 데이터 9개인지 확인
+    if uploaded_data is None or len(uploaded_data) == 0:
+        st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드하세요.")
+        return
+    elif len(uploaded_data) < 9:
+        st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. (현재 업로드:{len(uploaded_data)}개)")
+        return
+    else:
+        st.success("✅ 데이터 충분: 분석을 시행합니다.")
