@@ -85,7 +85,22 @@ def show_pitch(uploaded_data=None):
         fillcolor='rgba(123, 104, 238, 0.6)',
         showlegend=True
     ))
-
+    
+    
+    # 업로드 데이터가 있으면 같은 그래프에 추가 (항상 보임, 토글 없음)
+    if uploaded_data is not None:
+        for i, df in enumerate(uploaded_data):
+            label = df.attrs.get('filename', f'Uploaded {i+1}')
+            fig.add_trace(go.Scatter(
+                x=df['position'],   # position 그대로 사용 (필요시 버킷 처리 가능)
+                y=df['cumulative_pitch'],
+                mode='lines',
+                name=label,
+                line=dict(width=1, dash='dot'),
+                opacity=0.7
+            ))
+            
+            
     # 레이아웃 설정
     fig.update_layout(
         title='🎯 Cumulative Pitch (Mean) with Tilt Band',
