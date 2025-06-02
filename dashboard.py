@@ -42,13 +42,8 @@ with button_col:
 
 
 # --- 분석 탭 버튼 ---
-col1, col2 = st.columns([1, 3])  # 비율 조정 가능
+analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
 
-with col1:
-    st.markdown("### 분석 항목 선택")  # 텍스트 크고 왼쪽에 라벨
-
-with col2:
-    analysis_option = st.radio("", ["Gyro", "Pitch"], horizontal=True)
 
 # --------------------------
 # 사이드바
