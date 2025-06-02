@@ -237,9 +237,9 @@ def show_pitch(uploaded_data=None):
 
 
         # 5) 이상치 메시지 출력 (3시그마 초과량 포함)
-        if abnormal_bins:
-            st.error("🚨 이상 감지: 다음 구간에서 업로드된 데이터의 Tilt 평균이 정상 범위를 초과했습니다.")
-            for bin_start, count in abnormal_bins:
-                st.markdown(f"- **{bin_start} ~ {bin_start+20} m 구간**: Tilt 평균이 3σ 이상 벗어남")
-        else:
-            st.success("✅ 모든 구간에서 Tilt 평균이 정상 범위(±3σ) 이내입니다.")
+            if abnormal_bins:
+                st.error("🚨 이상 감지: 다음 구간에서 업로드된 데이터의 Tilt 평균이 정상 범위를 초과했습니다.")
+                for bin_start, count in abnormal_bins:
+                    st.markdown(f"- **{bin_start} ~ {bin_start+20} m 구간**: Tilt 평균이 3σ 이상 벗어남")
+            else:
+                st.success("✅ 모든 구간에서 Tilt 평균이 정상 범위(±3σ) 이내입니다.")
