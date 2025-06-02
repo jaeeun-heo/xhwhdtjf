@@ -25,8 +25,8 @@ st.set_page_config(layout="wide")
 # 💡 대시보드 상단 제목 + 경보 버튼 한 줄 배치
 title_col, button_col = st.columns([9, 1])
 with title_col:
-    st.markdown("### 스마트폰 센서 기반<br>교량 안전 모니터링 시스템", unsafe_allow_html=True)
-    st.markdown("###### 토목공학종합설계 7조")
+    st.markdown("# 스마트폰 센서 기반<br>교량 안전 모니터링 시스템", unsafe_allow_html=True)
+    st.markdown("### 토목공학종합설계 7조")
 
 if 'alarm_active' not in st.session_state:
     st.session_state.alarm_active = False
@@ -42,8 +42,8 @@ with button_col:
 
 
 # --- 분석 탭 버튼 ---
-analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
-
+st.markdown("### 분석 항목 선택")  # 텍스트 크기 키움
+analysis_option = st.radio("", ["Gyro", "Pitch"], horizontal=True)
 
 # --------------------------
 # 사이드바

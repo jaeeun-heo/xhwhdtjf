@@ -95,7 +95,6 @@ def show_gyro(uploaded_data=None):
     st.plotly_chart(fig, use_container_width=True)
 
     # 4. 표 생성 (0.5m 구간별 요약)
-    combined_df = combined_df[(combined_df['position_bin'] >= 0) & (combined_df['position_bin'] <= 220)]
     combined_df['range'] = (combined_df['position_bin'] // 20) * 20
     print("Filtered max position_bin:", combined_df['position_bin'].max())
 
