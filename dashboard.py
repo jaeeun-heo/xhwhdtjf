@@ -143,7 +143,7 @@ def process_uploaded_file(uploaded_file):
 st.sidebar.markdown("---")
 st.sidebar.header("\U0001F4C2 데이터 업로드")
 uploaded_files = st.sidebar.file_uploader(
-    "센서 데이터를 업로드하세요 (여러 개 CSV 가능)", 
+    "센서 데이터를 업로드하세요", 
     type=["csv"], 
     accept_multiple_files=True
 )

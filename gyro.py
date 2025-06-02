@@ -132,10 +132,10 @@ def show_gyro(uploaded_data=None):
 
     # 1) 업로드 데이터 9개인지 확인
     if uploaded_data is None or len(uploaded_data) == 0:
-        st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드해주세요.")
+        st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드하세요.")
         return
     elif len(uploaded_data) < 9:
-        st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. 현재 {len(uploaded_data)}개 업로드됨.")
+        st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. (현재 업로드:{len(uploaded_data)}개)")
         return
 
     # 2) IQR 상한선 (summary에서 전체 평균 사용)
@@ -176,7 +176,8 @@ def show_gyro(uploaded_data=None):
 
     # 5) 메시지 출력
     if abnormal_bins:
-        msg_lines = ["🚨 이상 예측 구간 발견:"]
+        detected_bins = len(abnormal_bins)  # 발견한 이상 구간 수
+        msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개"]
         total_files = len(uploaded_data)
         for bin_start, count in abnormal_bins:
             percent = (count / total_files) * 100
