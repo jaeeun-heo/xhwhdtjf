@@ -42,7 +42,7 @@ with button_col:
 
 
 # --- 분석 탭 버튼 ---
-analysis_option = st.radio("✅ 아래에서 분석 항목을 선택하세요요", ["Gyro", "Pitch"], horizontal=True)
+analysis_option = st.radio("✅ 아래에서 분석 항목을 선택하세요", ["Gyro", "Pitch"], horizontal=True)
 
 
 # --------------------------
@@ -78,7 +78,7 @@ st.sidebar.subheader("\U0001F4C1 데이터 다운로드")
 # 버튼 1: normal_1.zip
 zip_buffer = make_zip_from_files(normal_1_files)
 st.sidebar.download_button(
-    label="⬇️ 정상 데이터 다운로드 1",
+    label="⬇️ 정상 데이터 1",
     data=zip_buffer,
     file_name="normal_1.zip",
     mime="application/zip"
@@ -87,7 +87,7 @@ st.sidebar.download_button(
 # 버튼 2: normal_2.zip
 zip_buffer = make_zip_from_files(normal_2_files)
 st.sidebar.download_button(
-    label="⬇️ 정상 데이터 다운로드 2",
+    label="⬇️ 정상 데이터 2",
     data=zip_buffer,
     file_name="normal_2.zip",
     mime="application/zip"
@@ -96,7 +96,7 @@ st.sidebar.download_button(
 # 버튼 3: anomal_1.zip
 zip_buffer = make_zip_from_files(anomal_1_files)
 st.sidebar.download_button(
-    label="⬇️ 이상 데이터 다운로드 1",
+    label="⬇️ 이상 데이터 1",
     data=zip_buffer,
     file_name="anomal_1.zip",
     mime="application/zip"
@@ -105,7 +105,7 @@ st.sidebar.download_button(
 # 버튼 4: anomal_2.zip
 zip_buffer = make_zip_from_files(anomal_2_files)
 st.sidebar.download_button(
-    label="⬇️ 이상 데이터 다운로드 2",
+    label="⬇️ 이상 데이터 2",
     data=zip_buffer,
     file_name="anomal_2.zip",
     mime="application/zip"
