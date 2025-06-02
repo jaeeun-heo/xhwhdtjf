@@ -158,7 +158,7 @@ else:
     
     # 전체 삭제 버튼
 if st.session_state.get("uploader"):
-    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제제"):
+    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제"):
         st.session_state.uploader = []  # 세션 상태 초기화
         st.experimental_rerun()
 
