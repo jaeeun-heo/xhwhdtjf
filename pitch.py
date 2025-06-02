@@ -237,13 +237,15 @@ def show_pitch(uploaded_data=None):
                     
         # 5) 이상치 메시지 출력 (전체 구간은 11개 구간으로 나누어 검사)
         if abnormal_bins:
-            detected_bins = len(abnormal_bins)  # 이상 구간 수
+            detected_bins = len(abnormal_bins)
             msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간"]
             total_files = len(uploaded_data)
-            for bin_start, count in abnormal_bins:
+
+            for bin_start, count, max_deviation in abnormal_bins:
                 percent = (count / total_files) * 100
                 msg_lines.append(
-                    f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 ({percent:.1f}%)"
+                    f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 "
+                    f"({percent:.1f}%), 최대 초과량: {max_deviation:.2f}"
                 )
             st.error("\n".join(msg_lines))
         else:
