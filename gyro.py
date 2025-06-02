@@ -129,3 +129,56 @@ def show_gyro(uploaded_data=None):
     summary_table.index.name = 'Position(m)'
 
     st.dataframe(summary_table.style.format("{:.3f}"))
+
+    # 1) 업로드 데이터 9개인지 확인
+    if uploaded_data is None or len(uploaded_data) < 9:
+        st.warning("⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다.")
+        return
+
+    # 2) IQR 상한선 (summary에서 전체 평균 사용)
+    # combined_df에는 summary 파일 데이터 있음
+    # position_bin 20 단위로 묶인 upper 평균값을 구함
+    iqr_summary = combined_df.groupby('position_bin')['upper'].mean()
+    # 20단위 구간 라벨로 변환 (ex: 0,20,40,...)
+    iqr_20bins = {}
+    for pos_bin, upper_val in iqr_summary.items():
+        bin_20 = (pos_bin // 20) * 20
+        if bin_20 not in iqr_20bins:
+            iqr_20bins[bin_20] = []
+        iqr_20bins[bin_20].append(upper_val)
+    # 각 20단위 구간별 평균 upper 값 계산
+    iqr_20bins = {k: sum(v)/len(v) for k, v in iqr_20bins.items()}
+
+    # 3) 구간별로 9개 데이터에서 상한선 넘은 횟수 세기
+    exceed_counts = {}
+    for bin_start in sorted(iqr_20bins.keys()):
+        count_exceed = 0
+        upper_limit = iqr_20bins[bin_start]
+        bin_end = bin_start + 20
+        for df in uploaded_data:
+            # 해당 구간 position 값 필터링
+            sub_df = df[(df['position'] >= bin_start) & (df['position'] < bin_end)]
+            if sub_df.empty:
+                continue
+            # 해당 구간 gyro값이 upper_limit 넘은 점이 있는지 검사
+            if (sub_df['gyro'] > upper_limit).any():
+                count_exceed += 1
+        exceed_counts[bin_start] = count_exceed
+
+    # 4) 6개 이상 넘으면 이상 예측 구간
+    abnormal_bins = []
+    for bin_start, count in exceed_counts.items():
+        if count >= 6:
+            abnormal_bins.append((bin_start, count))
+
+    # 5) 메시지 출력
+    if abnormal_bins:
+        msg_lines = ["🚨 이상 예측 구간 발견:"]
+        for bin_start, count in abnormal_bins:
+            msg_lines.append(
+                f"- 구간 {bin_start}~{bin_start + 19} cm: {len(uploaded_data)}개 중 {count}개 이상 상한선 초과"
+                + " → 이상 예측 구간"
+            )
+        st.error("\n".join(msg_lines))
+    else:
+        st.success("✅ 이상 예측 구간 없음")
