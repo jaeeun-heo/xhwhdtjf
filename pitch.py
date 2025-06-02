@@ -52,7 +52,7 @@ def show_pitch(uploaded_data=None):
                 y=file_data['pitch'],
                 mode='lines',
                 name=fname,
-                line=dict(width=1, color='rgba(100,100,100,0.8)'),
+                line=dict(width=1, color='rgba(100,100,100,1)'),
                 visible='legendonly'
             ))
 
