@@ -154,7 +154,7 @@ dfs_uploaded = [pd.read_csv(f) for f in st.session_state.uploader] if "uploader"
 
 # 전체 삭제 버튼
 if st.session_state.get("uploader"):
-    if st.sidebar.button("🗑️ 전체 업로드 데이터 삭제"):
+    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제"):
         st.session_state.uploader = []  # 세션 상태 초기화
         st.experimental_rerun()
 
