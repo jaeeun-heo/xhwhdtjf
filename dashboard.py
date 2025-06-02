@@ -48,10 +48,10 @@ from gyro import show_gyro
 from pitch import show_pitch
 
 # --- 버튼 선택 시 해당 분석 화면 실행 ---
-#if analysis_option == "Gyro":
-#    show_gyro()
-#elif analysis_option == "Pitch":
-#    show_pitch()
+if analysis_option == "Gyro":
+    show_gyro()
+elif analysis_option == "Pitch":
+    show_pitch()
 
 
 
@@ -83,7 +83,6 @@ anomal_1_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(131
 # anomal_2: anomal_140.csv ~ anomal_148.csv (9개)
 anomal_2_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(140, 149)]
 
-st.sidebar.markdown("---")
 st.sidebar.subheader("\U0001F4C1 데이터 다운로드")
 
 # 버튼 1: normal_1.zip
@@ -150,9 +149,7 @@ def process_uploaded_file(uploaded_file):
         return []
 
 
-
-
-
+st.sidebar.markdown("---")
 st.sidebar.header("\U0001F4C2 데이터 업로드")
 uploaded_file = st.sidebar.file_uploader("센서 데이터를 업로드하세요 (CSV or Excel)", type=["csv", "xlsx"])
 
