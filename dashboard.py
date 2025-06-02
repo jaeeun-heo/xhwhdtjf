@@ -9,6 +9,8 @@ from io import BytesIO
 from PIL import Image
 import os
 import glob
+import zipfile
+from io import BytesIO
 
 # QR코드 생성
 url = "https://xhwhdtjf-b7n87zyelbtmnhzzjlp6kq.streamlit.app/"
@@ -55,28 +57,68 @@ else:
     st.info("왼쪽 사이드바에서 센서 데이터를 업로드해주세요.")
 
 # 모의 데이터 다운로드 버튼
+def make_zip_from_files(file_paths):
+    zip_buffer = BytesIO()
+    with zipfile.ZipFile(zip_buffer, "w") as zf:
+        for file_path in file_paths:
+            file_name = os.path.basename(file_path)
+            with open(file_path, "rb") as f:
+                zf.writestr(file_name, f.read())
+    zip_buffer.seek(0)
+    return zip_buffer
+
+# 경로 설정
+normal_dir = "data/normal/set6"
+anomal_dir = "data/anomal/set13"
+
+# normal_1: normal_67.csv ~ normal_79.csv (9개)
+normal_1_files = [os.path.join(normal_dir, f"normal_{i}.csv") for i in [67, 69, 70, 74, 75, 76, 77, 78, 79]]
+# normal_2: normal_80.csv ~ normal_88.csv (9개)
+normal_2_files = [os.path.join(normal_dir, f"normal_{i}.csv") for i in [80, 81, 82, 83, 84, 85, 86, 87, 89]]
+
+# anomal_1: anomal_131.csv ~ anomal_139.csv (9개)
+anomal_1_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(131, 139)]
+# anomal_2: anomal_140.csv ~ anomal_148.csv (9개)
+anomal_2_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(140, 149)]
+
 st.sidebar.markdown("---")
-st.sidebar.subheader("\U0001F4C1 모의 데이터 다운로드")
+st.sidebar.subheader("\U0001F4C1 데이터 다운로드")
 
-def create_mock_data(index):
-    np.random.seed(index)
-    mock_df = pd.DataFrame({
-        '시간': pd.date_range(start='2024-01-01', periods=100, freq='S'),
-        '가속도_X': np.random.normal(0, 0.5, 100),
-        '가속도_Y': np.random.normal(0, 0.5, 100),
-        '가속도_Z': np.random.normal(9.8, 0.5, 100),
-    })
-    return mock_df
+# 버튼 1: normal_1.zip
+zip_buffer = make_zip_from_files(normal_1_files)
+st.sidebar.download_button(
+    label="⬇️ 정상 데이터 다운로드 1",
+    data=zip_buffer,
+    file_name="normal_1.zip",
+    mime="application/zip"
+)
 
-for i in range(1, 4):
-    df_mock = create_mock_data(i)
-    csv = df_mock.to_csv(index=False).encode('utf-8')
-    st.sidebar.download_button(
-        label=f"\U0001F4E5 모의 데이터 {i} 다운로드",
-        data=csv,
-        file_name=f"mock_data_{i}.csv",
-        mime='text/csv'
-    )
+# 버튼 2: normal_2.zip
+zip_buffer = make_zip_from_files(normal_2_files)
+st.sidebar.download_button(
+    label="⬇️ 정상 데이터 다운로드 2",
+    data=zip_buffer,
+    file_name="normal_2.zip",
+    mime="application/zip"
+)
+
+# 버튼 3: anomal_1.zip
+zip_buffer = make_zip_from_files(anomal_1_files)
+st.sidebar.download_button(
+    label="⬇️ 이상 데이터 다운로드 1",
+    data=zip_buffer,
+    file_name="anomal_1.zip",
+    mime="application/zip"
+)
+
+# 버튼 4: anomal_2.zip
+zip_buffer = make_zip_from_files(anomal_2_files)
+st.sidebar.download_button(
+    label="⬇️ 이상 데이터 다운로드 2",
+    data=zip_buffer,
+    file_name="anomal_2.zip",
+    mime="application/zip"
+)
 
 # --- 분석 탭 버튼 ---
 analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
