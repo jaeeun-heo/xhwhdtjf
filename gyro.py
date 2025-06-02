@@ -117,7 +117,7 @@ def show_gyro(uploaded_data=None):
     )
     summary_table.index.name = 'Position(m)'
 
-    st.datafrasme(summary_table.style.format("{:.3f}"))
+    st.dataframe(summary_table.style.format("{:.3f}"))
 
 # ------------------
 # 업로드 데이터
