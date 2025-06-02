@@ -28,7 +28,7 @@ def show_gyro(uploaded_data=None):
 
     # 2. 필터링
     combined_df = combined_df[(combined_df['position_bin'] >= 0) & (combined_df['position_bin'] <= 220)]
-    st.write("position_bin max:", combined_df['position_bin'].max())
+    print("position_bin max:", combined_df['position_bin'].max())
 
     # 3. Plotly 그래프 생성
     fig = go.Figure()
@@ -117,9 +117,7 @@ def show_gyro(uploaded_data=None):
     )
     summary_table.index.name = 'Position(m)'
 
-    st.dataframe(summary_table.style.format("{:.3f}"))
-    st.write("range_labels:", range_labels)
-    st.write("range_str_labels:", range_str_labels)
+    st.datafrasme(summary_table.style.format("{:.3f}"))
 
 # ------------------
 # 업로드 데이터
