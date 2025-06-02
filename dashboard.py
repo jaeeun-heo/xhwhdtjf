@@ -42,7 +42,7 @@ with button_col:
 
 
 # --- 분석 탭 버튼 ---
-analysis_option = st.radio("분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
+analysis_option = st.radio("✅ 분석 항목 선택", ["Gyro", "Pitch"], horizontal=True)
 
 
 # --------------------------
