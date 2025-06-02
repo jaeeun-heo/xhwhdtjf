@@ -40,21 +40,45 @@ def show_pitch(uploaded_data=None):
     merged_df['tilt_upper'] = merged_df['pitch_mean'] + merged_df['tilt_mean'] * scale
     merged_df['tilt_lower'] = merged_df['pitch_mean'] - merged_df['tilt_mean'] * scale
 
+    return combined_df, merged_df
 
 
 
 ## 업로드 파일 9개 이상이면 pitch, tilt 그리기
-    pitch_mean_uploaded = None
-    if uploaded_data is not None and len(uploaded_data) >= 9:
-        combined_df_list = []
-        for df in uploaded_data:
-            # position_bin 처리 (1단위 반올림)
-            df['position_bin'] = (df['position'] / 1).round() * 1
-            # 범위 필터링
-            df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
-            combined_df_list.append(df[['position_bin', 'cumulative_pitch']])
-        combined_uploaded_df = pd.concat(combined_df_list, axis=0)
-        pitch_mean_uploaded = combined_uploaded_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
+def process_uploaded_data(uploaded_data):
+    if uploaded_data is None or len(uploaded_data) == 0:
+        return None
+    combined_list = []
+    for df in uploaded_data:
+        # position_bin 1단위 반올림
+        df['position_bin'] = (df['position'] / 1).round() * 1
+        # 범위 필터링
+        df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
+        combined_list.append(df[['position_bin', 'cumulative_pitch']])
+
+    combined_uploaded_df = pd.concat(combined_list, axis=0)
+    pitch_mean_uploaded = combined_uploaded_df.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
+    return pitch_mean_uploaded
+
+def show_pitch(uploaded_data=None):
+    # 1. 기존 summary 데이터 불러오기
+    combined_summary_df, merged_summary_df = load_summary_data()
+
+    # 2. 업로드 데이터 처리
+    pitch_mean_uploaded = process_uploaded_data(uploaded_data)
+
+    # 업로드 데이터 개수 체크
+    if uploaded_data is None or len(uploaded_data) == 0:
+        st.warning("📂 왼쪽 사이드바에서 CSV 파일을 업로드하세요.")
+        return
+    elif len(uploaded_data) < 9:
+        st.warning(f"⚠️ 데이터 부족: 업로드된 데이터가 9개 미만입니다. (현재 업로드: {len(uploaded_data)}개)")
+        return
+    else:
+        st.success("✅ 데이터 충분: 분석을 시행합니다.")
+
+
+
 
     # 4. Plotly 그래프 생성
     fig = go.Figure()
@@ -103,8 +127,8 @@ def show_pitch(uploaded_data=None):
     ))
     
     
-    # 업로드 데이터가 있으면 같은 그래프에 추가 (항상 보임, 토글 없음)
-    if uploaded_data is not None:
+    # 업로드 데이터가 충분하면 겹쳐서 선 추가
+    if pitch_mean_uploaded is not None:
         fig.add_trace(go.Scatter(
             x=pitch_mean_uploaded['position_bin'],
             y=pitch_mean_uploaded['cumulative_pitch'],
