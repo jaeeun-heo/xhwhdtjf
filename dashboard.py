@@ -141,25 +141,30 @@ def process_uploaded_file(uploaded_file):
 # 사이드바: 데이터 업로드
 # --------------------------
 st.sidebar.markdown("---")
-st.sidebar.header("\U0001F4C2 데이터 업로드")
-
+# 사이드바 - 파일 업로드
+st.sidebar.header("📂 센서 데이터 업로드")
 uploaded_files = st.sidebar.file_uploader(
-    "센서 데이터를 업로드하세요 (csv, xlsx)", 
+    "CSV 파일 여러 개 업로드 가능", 
     type=["csv"], 
     accept_multiple_files=True,
-    key="uploader"
+    key="uploaded_files"  # 이 키 이름으로 세션 상태 접근 가능
 )
 
-# 데이터프레임 리스트 생성
+# 세션 상태에 업로드된 파일 저장
+if "dfs_uploaded" not in st.session_state:
+    st.session_state.dfs_uploaded = []
+
+# 새로운 업로드가 있으면 세션 상태에 저장
 if uploaded_files:
-    dfs_uploaded = [pd.read_csv(file) for file in uploaded_files]
-else:
-    dfs_uploaded = None
-    
-    # 전체 삭제 버튼
-if st.session_state.get("uploader"):
-    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제"):
-        st.session_state.uploader = []  # 세션 상태 초기화
+    st.session_state.dfs_uploaded = [pd.read_csv(f) for f in uploaded_files]
+
+# 데이터프레임 리스트 가져오기
+dfs_uploaded = st.session_state.dfs_uploaded if st.session_state.dfs_uploaded else None
+
+# 전체 삭제 버튼
+if dfs_uploaded:
+    if st.sidebar.button("🗑️ 업로드 데이터 전체체 삭제"):
+        st.session_state.dfs_uploaded = []
         st.experimental_rerun()
 
 # --------------------------
