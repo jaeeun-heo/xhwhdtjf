@@ -241,11 +241,10 @@ def show_pitch(uploaded_data=None):
             msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간"]
             total_files = len(uploaded_data)
 
-            for bin_start, count, max_deviation in abnormal_bins:
+            for bin_start, count in abnormal_bins:
                 percent = (count / total_files) * 100
                 msg_lines.append(
                     f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 "
-                    f"({percent:.1f}%), 최대 초과량: {max_deviation:.2f}"
                 )
             st.error("\n".join(msg_lines))
         else:
