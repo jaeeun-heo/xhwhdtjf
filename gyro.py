@@ -38,8 +38,8 @@ def show_gyro(uploaded_data=None):
         file_data = combined_df[combined_df['file'] == fname]
         fig.add_trace(go.Scatter(
             x=file_data['position_bin'],
-            y=file_data['mean'],
-            y=file_data['upper'],
+            y_1=file_data['mean'],
+            y_2=file_data['upper'],
             mode='lines',
             name=f"{fname} (Mean)",
             line=dict(width=1.5, color='gray'),
