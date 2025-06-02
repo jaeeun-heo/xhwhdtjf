@@ -96,7 +96,7 @@ def show_gyro(uploaded_data=None):
     st.plotly_chart(fig, use_container_width=True)
 
     # 4. 표 생성 (0.5m 구간별 요약)
-    combined_df['range'] = (combined_df['position_bin'] // 0.5) * 0.5
+    combined_df['range'] = (combined_df['position_bin'] // 20) * 20
 
     iqr_summary = combined_df.groupby('range')['upper'].mean()
     mean_summary = combined_df.groupby('range')['mean'].mean()
@@ -117,7 +117,7 @@ def show_gyro(uploaded_data=None):
     )
     summary_table.index.name = 'Position(m)'
 
-    st.dataframe(summary_table.style.format("{:.3f}"), width=900)
+    st.dataframe(summary_table.style.format("{:.3f}"))
 
 # ------------------
 # 업로드 데이터
