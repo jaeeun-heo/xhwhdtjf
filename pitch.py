@@ -234,18 +234,12 @@ def show_pitch(uploaded_data=None):
                     bin_start = bins[idx]
                     # 이상치 개수는 간단히 1로 처리 (정확히는 파일별 이상 개수 집계 필요 시 로직 추가)
                     abnormal_bins.append((bin_start, 1))
-                    
-        # 5) 이상치 메시지 출력 (전체 구간은 11개 구간으로 나누어 검사)
-        if abnormal_bins:
-            detected_bins = len(abnormal_bins)
-            msg_lines = [f"🚨 이상 예측 구간 발견: 11개 구간 중 {detected_bins}개 구간"]
-            total_files = len(uploaded_data)
 
+
+        # 5) 이상치 메시지 출력 (3시그마 초과량 포함)
+        if abnormal_bins:
+            st.error("🚨 이상 감지: 다음 구간에서 업로드된 데이터의 Tilt 평균이 정상 범위를 초과했습니다.")
             for bin_start, count in abnormal_bins:
-                percent = (count / total_files) * 100
-                msg_lines.append(
-                    f"- 구간 {bin_start}~{bin_start + 19} m: 총 {total_files}개 중 {count}개 상한선 초과 "
-                )
-            st.error("\n".join(msg_lines))
+                st.markdown(f"- **{bin_start} ~ {bin_start+20} m 구간**: Tilt 평균이 3σ 이상 벗어남")
         else:
-            st.success("✅ 이상 예측 구간 없음")
+            st.success("✅ 모든 구간에서 Tilt 평균이 정상 범위(±3σ) 이내입니다.")
