@@ -1,6 +1,5 @@
 import qrcode
 import streamlit as st
-st.cache_data.clear()
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt

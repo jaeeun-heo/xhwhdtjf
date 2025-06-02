@@ -14,13 +14,13 @@ def show_gyro(uploaded_data=None):
     # 1. 파일 로딩
     data_dir = "data/normal/summary"
     file_list = glob.glob(os.path.join(data_dir, "summary_gyro_set[0-5].csv"))
-    st.write("File list found:", file_list)   # 여기서 파일이 잘 잡히는지 출력해보자
-
     combined_df = pd.DataFrame()
 
     for file in file_list:
-        st.write(f"Reading file: {file}")  # 파일 읽기 시도 로그
-
+        print(f"Reading file: {file}")
+        df = pd.read_csv(file)
+        print(df.head())
+        print(df.columns)
         df = pd.read_csv(file)
         df['file'] = os.path.basename(file).split('.')[0]
         df.rename(columns={
