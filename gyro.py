@@ -106,7 +106,6 @@ def show_gyro(uploaded_data=None):
     )
 
     st.plotly_chart(fig, use_container_width=True)
-    st.write("🔥 여긴 도달했는가?")
 
     # 4. 표 생성 (0.5m 구간별 요약)
     combined_df['range'] = (combined_df['position_bin'] // 20) * 20
