@@ -113,7 +113,10 @@ st.sidebar.download_button(
 
 
 # 데이터 업로드
-def process_uploaded_file(uploaded_file):   
+# 데이터 업로드
+def process_uploaded_file(uploaded_file):
+    import pandas as pd
+    
     if uploaded_file.name.endswith('.csv'):
         df = pd.read_csv(uploaded_file)
         return [df]
@@ -137,45 +140,20 @@ def process_uploaded_file(uploaded_file):
         return []
 
 
-# --------------------------
-# 사이드바: 데이터 업로드
-# --------------------------
 st.sidebar.markdown("---")
-# 사이드바 - 파일 업로드
-st.sidebar.header("📂 센서 데이터 업로드")
+st.sidebar.header("\U0001F4C2 데이터 업로드")
 uploaded_files = st.sidebar.file_uploader(
-    "CSV 파일 여러 개 업로드 가능", 
+    "센서 데이터를 업로드하세요 (여러 개 CSV 가능)", 
     type=["csv"], 
-    accept_multiple_files=True,
-    key="uploaded_files"  # 이 키 이름으로 세션 상태 접근 가능
+    accept_multiple_files=True
 )
+dfs_uploaded = [pd.read_csv(f) for f in uploaded_files] if uploaded_files else None
 
-# 세션 상태에 업로드된 파일 저장
-if "dfs_uploaded" not in st.session_state:
-    st.session_state.dfs_uploaded = []
 
-# 새로운 업로드가 있으면 세션 상태에 저장
-if uploaded_files:
-    st.session_state.dfs_uploaded = [pd.read_csv(f) for f in uploaded_files]
-
-# 데이터프레임 리스트 가져오기
-dfs_uploaded = st.session_state.dfs_uploaded if st.session_state.dfs_uploaded else None
-
-# 전체 삭제 버튼
-if dfs_uploaded:
-    if st.sidebar.button("🗑️ 업로드 데이터 전체 삭제"):
-        st.session_state.dfs_uploaded = []
-        st.experimental_rerun()
-
-# --------------------------
-# 분석 선택 후 페이지 전환
-# --------------------------
 from gyro import show_gyro
 from pitch import show_pitch
 
 if analysis_option == "Gyro":
-    if dfs_uploaded:   # 데이터 있을 때만 호출
-        show_gyro(uploaded_data=dfs_uploaded)
+    show_gyro(uploaded_data=dfs_uploaded)  # 없으면 None 전달됨
 elif analysis_option == "Pitch":
-    if dfs_uploaded:   # 데이터 있을 때만 호출
-        show_pitch(uploaded_data=dfs_uploaded)
+    show_pitch(uploaded_data=dfs_uploaded)
