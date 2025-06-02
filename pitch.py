@@ -82,7 +82,7 @@ def show_pitch(uploaded_data=None):
         name='Tilt Lower',
         line=dict(color='mediumslateblue', width=0),
         fill='tonexty',
-        fillcolor='rgba(123, 104, 238, 0.8)',
+        fillcolor='rgba(123, 104, 238, 0.6)',
         showlegend=True
     ))
 
