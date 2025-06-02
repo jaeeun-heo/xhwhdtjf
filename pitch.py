@@ -9,7 +9,8 @@ from PIL import Image
 import os
 import glob
 
-def show_pitch():
+def show_pitch(uploaded_data=None):
+
     # 1. 파일 로딩
     data_dir = "data/normal"
     file_list = glob.glob(os.path.join(data_dir, "normal_*.csv"))
@@ -106,3 +107,10 @@ def show_pitch():
 
     # Streamlit 출력
     st.plotly_chart(fig, use_container_width=True)
+
+
+# ------------------
+# 업로드 데이터
+    if uploaded_data is not None:
+        add_df = uploaded_data.copy()
+        
