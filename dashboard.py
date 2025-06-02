@@ -69,9 +69,9 @@ normal_1_files = [os.path.join(normal_dir, f"normal_{i}.csv") for i in [67, 69, 
 normal_2_files = [os.path.join(normal_dir, f"normal_{i}.csv") for i in [80, 81, 82, 83, 84, 85, 86, 87, 89]]
 
 # anomal_1: anomal_131.csv ~ anomal_139.csv (9개)
-anomal_1_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(131, 139)]
+anomal_1_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in [131, 132, 133, 134, 135, 136, 137, 138, 139]]
 # anomal_2: anomal_140.csv ~ anomal_148.csv (9개)
-anomal_2_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in range(140, 149)]
+anomal_2_files = [os.path.join(anomal_dir, f"anomal_{i}.csv") for i in [140, 141, 142, 143, 144, 145, 146, 147, 148]]
 
 st.sidebar.subheader("\U0001F4C1 데이터 다운로드")
 
