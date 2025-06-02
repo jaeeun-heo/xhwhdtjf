@@ -73,6 +73,19 @@ def show_gyro(uploaded_data=None):
         line=dict(color='orange', width=2, dash='dash')
     ))
 
+    # 업로드 데이터가 있으면 같은 그래프에 추가 (항상 보임, 토글 없음)
+    if uploaded_data is not None:
+        for i, df in enumerate(uploaded_data):
+            label = df.attrs.get('filename', f'Uploaded {i+1}')
+            fig.add_trace(go.Scatter(
+                x=df['position'],   # position 그대로 사용 (필요시 버킷 처리 가능)
+                y=df['gyro'],
+                mode='lines',
+                name=label,
+                line=dict(width=1, dash='dot'),
+                opacity=0.7
+            ))
+
     fig.update_layout(
         title='📈 Gyro Summary by Position (from Summary Files)',
         xaxis_title='Position (m)',
@@ -96,9 +109,6 @@ def show_gyro(uploaded_data=None):
 
     # 4. 표 생성 (0.5m 구간별 요약)
     combined_df['range'] = (combined_df['position_bin'] // 20) * 20
-    print("Filtered max position_bin:", combined_df['position_bin'].max())
-
-
     iqr_summary = combined_df.groupby('range')['upper'].mean()
     mean_summary = combined_df.groupby('range')['mean'].mean()
 
@@ -119,22 +129,3 @@ def show_gyro(uploaded_data=None):
     summary_table.index.name = 'Position(m)'
 
     st.dataframe(summary_table.style.format("{:.3f}"))
-
-# ------------------
-# 업로드 데이터
-    if uploaded_data is not None:
-        for i, df in enumerate(uploaded_data):
-            df['position_bin'] = (df['position'] // 1) * 1
-            label = df.attrs.get('filename', f'Uploaded {i+1}')
-            fig.add_trace(go.Scatter(
-                x=df['position'],
-                y=df['gyro'],
-                mode='lines',
-                name=f'{label}',
-                line=dict(width=1, dash='dot')
-            ))
-    
-    fig.update_layout(title="Gyro Pitch with Summary and Uploaded Data",
-                      xaxis_title="Position",
-                      yaxis_title="Gyro")
-    st.plotly_chart(fig)
