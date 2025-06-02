@@ -138,18 +138,18 @@ def show_pitch(uploaded_data=None):
             y=uploaded_merged.get('tilt_upper', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Upper',
-            line=dict(color='Light Green', width=0),
+            fillcolor='rgba(144, 238, 144, 0.4)', width=0),
             showlegend=False
-        ))
+        )
 
         fig.add_trace(go.Scatter(
             x=uploaded_merged['position_bin'],
             y=uploaded_merged.get('tilt_lower', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Lower',
-            line=dict(color='Light Green', width=0),
+            line=dict(width=0),
             fill='tonexty',
-            fillcolor='rgba(255, 99, 71, 0.4)',
+            fillcolor='rgba(144, 238, 144, 0.4)',
             showlegend=True
         ))
 
