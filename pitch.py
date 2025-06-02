@@ -20,12 +20,13 @@ def show_pitch(uploaded_data=None):
     for file in file_list:
         df = pd.read_csv(file)
         df['file'] = os.path.basename(file).split('.')[0]
+        df.rename(columns={
+            'position_bin_pitch_tilt': 'position_bin',
+            'mean_pitch': 'pitch',
+            'mean_tilt': 'tilt'
+        }, inplace=True)
+        combined_df = pd.concat([combined_df, df[['position_bin', 'pitch', 'tilt', 'file']]], ignore_index=True)
 
-        if 'position_bin' in df.columns and 'pitch' in df.columns and 'tilt' in df.columns:
-            combined_df = pd.concat([
-                combined_df,
-                df[['position_bin', 'pitch', 'tilt', 'file']]
-            ], ignore_index=True)
 
     # 2. 유효한 구간으로 자르기 (0~2.5m 기준, 0.1 bin당 25개 구간)
     combined_df = combined_df[(combined_df['position_bin'] >= 0.0) & (combined_df['position_bin'] <= 220)]
