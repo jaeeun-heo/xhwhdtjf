@@ -162,7 +162,7 @@ def show_pitch(uploaded_data=None):
         width=900,
         height=500,
         xaxis=dict(range=[-5, 225]),
-        yaxis=dict(range=[-0.05, 0.05]),
+        yaxis=dict(range=[-0.04, 0.06]),
         legend=dict(
             orientation='h',
             yanchor='bottom',
