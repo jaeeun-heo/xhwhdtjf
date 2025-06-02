@@ -237,9 +237,28 @@ def show_pitch(uploaded_data=None):
 
 
         # 5) 이상치 메시지 출력 (3시그마 초과량 포함)
-            if abnormal_bins:
-                st.error("🚨 이상 감지: 다음 구간에서 업로드된 데이터의 Tilt 평균이 정상 범위를 초과했습니다.")
-                for bin_start, count in abnormal_bins:
-                    st.markdown(f"- **{bin_start} ~ {bin_start+20} m 구간**: Tilt 평균이 3σ 이상 벗어남")
+        # 5) 이상치 메시지 출력 (3시그마 초과 정도 포함)
+                total_bins = 11  # 구간 개수 (예: 11)
+                detected_bins = len(abnormal_bins)
+
+            if detected_bins > 0:
+                msg_lines = [f"🚨 이상 예측 구간 발견: 전체 {total_bins}개 구간 중 {detected_bins}개 구간"]
+                st.error(msg_lines[0])
+
+                for bin_start, _ in abnormal_bins:
+                    # summary stats 재조회 (평균, std)
+                    summary_stats = summary_group[summary_group['bin_group'] == pd.Interval(left=bin_start, right=bin_start+20, closed='left')]
+                    upload_mean_tilt = uploaded_bin_mean[uploaded_bin_mean['bin_group'] == pd.Interval(left=bin_start, right=bin_start+20, closed='left')]['tilt'].values[0]
+                    mean_tilt = summary_stats['mean'].values[0]
+                    std_tilt = summary_stats['std'].values[0]
+                    if pd.isna(std_tilt) or std_tilt == 0:
+                        std_tilt = 1e-6
+
+                   # 초과 정도 계산 (3시그마 대비 퍼센트)
+                    deviation = abs(upload_mean_tilt - mean_tilt)
+                    threshold = 3 * std_tilt
+                    percent_exceed = (deviation / threshold) * 100
+
+                    st.markdown(f"- **{bin_start}~{bin_start+20}m 구간**: Tilt 평균이 3σ 한계치를 {percent_exceed:.1f}% 초과함 (업로드: {upload_mean_tilt:.4f}, 기준: {mean_tilt:.4f}±{threshold:.4f})")
             else:
-                st.success("✅ 모든 구간에서 Tilt 평균이 정상 범위(±3σ) 이내입니다.")
+                st.success(f"✅ 이상 예측 구간 없음: 전체 {total_bins}개 구간 모두 정상 범위(±3σ) 내에 있습니다.")
