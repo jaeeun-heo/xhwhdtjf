@@ -11,8 +11,6 @@ import glob
 
 def show_gyro(uploaded_data=None):
 
-    st.write("🔥 여긴 도달했는가?")
-
     # 1. 파일 로딩
     data_dir = "data/normal/summary"
     file_list = glob.glob(os.path.join(data_dir, "summary_gyro_set[0-5].csv"))
@@ -108,6 +106,7 @@ def show_gyro(uploaded_data=None):
     )
 
     st.plotly_chart(fig, use_container_width=True)
+    st.write("🔥 여긴 도달했는가?")
 
     # 4. 표 생성 (0.5m 구간별 요약)
     combined_df['range'] = (combined_df['position_bin'] // 20) * 20
