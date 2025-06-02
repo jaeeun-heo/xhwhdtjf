@@ -124,7 +124,7 @@ def show_pitch(uploaded_data=None):
     if pitch_mean_uploaded is not None:
         fig.add_trace(go.Scatter(
             x=pitch_mean_uploaded['position_bin'],
-            y=pitch_mean_uploaded['cumulative_pitch'],
+            y=pitch_mean_uploaded['pitch_mean'],
             mode='lines',
             name='Uploaded Data Mean Pitch',
             line=dict(color='red', width=2, dash='dash')
