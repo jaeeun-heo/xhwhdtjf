@@ -45,6 +45,8 @@ def show_pitch(uploaded_data=None):
     # ✅ 업로드된 데이터 평균 추가 계산 (있고, 9개 이상일 때만)
     pitch_mean_uploaded = None
     if uploaded_data is not None and len(uploaded_data) >= 9:
+
+
         combined_df_list = []
         for df in uploaded_data:
             df['position_bin'] = (df['position'] / 1).round() * 1
@@ -54,6 +56,24 @@ def show_pitch(uploaded_data=None):
         df_uploaded_all = pd.concat(combined_df_list, axis=0)
         pitch_mean_uploaded = df_uploaded_all.groupby('position_bin')['cumulative_pitch'].mean().reset_index()
 
+
+        combined_tilt_list = []
+        for df in uploaded_data:
+            df['position_bin'] = (df['position'] / 1).round() * 1
+            df = df[(df['position_bin'] >= 0) & (df['position_bin'] <= 220)]
+            if 'tilt' in df.columns:
+                combined_tilt_list.append(df[['position_bin', 'tilt']])
+
+        tilt_band_uploaded = None
+        if combined_tilt_list:
+            df_uploaded_tilt_all = pd.concat(combined_tilt_list, axis=0)
+            tilt_mean_uploaded = df_uploaded_tilt_all.groupby('position_bin')['tilt'].mean().reset_index(name='tilt_mean')
+            pitch_mean_uploaded = pitch_mean_uploaded.rename(columns={'cumulative_pitch': 'pitch_mean'})
+            uploaded_merged = pd.merge(pitch_mean_uploaded, tilt_mean_uploaded, on='position_bin', how='inner')
+            uploaded_merged['tilt_upper'] = uploaded_merged['pitch_mean'] + uploaded_merged['tilt_mean'] * scale
+            uploaded_merged['tilt_lower'] = uploaded_merged['pitch_mean'] - uploaded_merged['tilt_mean'] * scale
+        else:
+            uploaded_merged = pitch_mean_uploaded.copy()
     # ✅ 그래프 그리기
     fig = go.Figure()
 
@@ -108,6 +128,25 @@ def show_pitch(uploaded_data=None):
             mode='lines',
             name='Uploaded Data Mean Pitch',
             line=dict(color='red', width=2, dash='dash')
+        ))
+        fig.add_trace(go.Scatter(
+            x=uploaded_merged['position_bin'],
+            y=uploaded_merged.get('tilt_upper', [None]*len(uploaded_merged)),
+            mode='lines',
+            name='Uploaded Tilt Upper',
+            line=dict(color='salmon', width=0),
+            showlegend=False
+        ))
+
+        fig.add_trace(go.Scatter(
+            x=uploaded_merged['position_bin'],
+            y=uploaded_merged.get('tilt_lower', [None]*len(uploaded_merged)),
+            mode='lines',
+            name='Uploaded Tilt Lower',
+            line=dict(color='salmon', width=0),
+            fill='tonexty',
+            fillcolor='rgba(255, 99, 71, 0.4)',
+            showlegend=True
         ))
 
     # --- 레이아웃 ---
