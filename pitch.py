@@ -134,7 +134,7 @@ def show_pitch(uploaded_data=None):
             y=uploaded_merged.get('tilt_upper', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Upper',
-            line=dict(color='Spring Green', width=0),
+            line=dict(color='Light Green', width=0),
             showlegend=False
         ))
 
@@ -143,7 +143,7 @@ def show_pitch(uploaded_data=None):
             y=uploaded_merged.get('tilt_lower', [None]*len(uploaded_merged)),
             mode='lines',
             name='Uploaded Tilt Lower',
-            line=dict(color='Spring Green', width=0),
+            line=dict(color='Light Green', width=0),
             fill='tonexty',
             fillcolor='rgba(255, 99, 71, 0.4)',
             showlegend=True
