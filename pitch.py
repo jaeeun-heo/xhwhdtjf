@@ -13,7 +13,7 @@ def show_pitch(uploaded_data=None):
 
     # 1. summary_pitch_tilt_set 파일들 로딩
     data_dir = "data/normal/summary"
-    file_list = glob.glob(os.path.join(data_dir, "summary_pitch_tilt_set*.csv"))
+    file_list = glob.glob(os.path.join(data_dir, "summary_pitch_tilt_set[0-5].csv"))
 
     combined_df = pd.DataFrame()
 
@@ -52,7 +52,7 @@ def show_pitch(uploaded_data=None):
                 y=file_data['pitch'],
                 mode='lines',
                 name=fname,
-                line=dict(width=1, color='rgba(100,100,100,0.4)'),
+                line=dict(width=1, color='rgba(100,100,100,0.8)'),
                 visible='legendonly'
             ))
 
@@ -62,7 +62,7 @@ def show_pitch(uploaded_data=None):
         y=merged_df['pitch_mean'],
         mode='lines',
         name='Pitch Mean',
-        line=dict(color='mediumslateblue', width=3)
+        line=dict(color='mediumslateblue', width=2.5)
     ))
 
     # Tilt 음영 영역 추가
@@ -93,8 +93,8 @@ def show_pitch(uploaded_data=None):
         yaxis_title='Pitch',
         width=900,
         height=500,
-        xaxis=dict(range=[0, 220]),
-        yaxis=dict(range=[-0.02, 0.02]),
+        xaxis=dict(range=[-5, 225]),
+        yaxis=dict(range=[-0.03, 0.03]),
         legend=dict(
             orientation='h',
             yanchor='bottom',
