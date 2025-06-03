@@ -9,12 +9,13 @@ data_type = 'normal'
 folder = os.path.join(base_dir, data_type)
 summary_save_dir = os.path.join(folder, "summary")
 os.makedirs(summary_save_dir, exist_ok=True)
-set_folders = sorted(glob.glob(os.path.join(folder, 'set*')))
+set_folders = sorted(glob.glob(os.path.join(folder, 'set0')))
 
 bin_size_gyro = 10
 bin_size_pitch_tilt = 1
 
 # === 반복 시작 ===
+plt. figure(figsize=(6,5))
 for set_folder in set_folders:
     set_name = os.path.basename(set_folder)
     csv_files = sorted(glob.glob(os.path.join(set_folder, 'normal_*.csv')))
@@ -57,6 +58,7 @@ for set_folder in set_folders:
         df = pd.read_csv(file_path)
         plt.plot(df['position'], df['gyro'], linewidth=0.5, alpha=0.8)
 
+
     plt.plot(summary_gyro['position_bin_gyro'], summary_gyro['mean_gyro'], color='red', linewidth=1, label='Mean Gyro')
     plt.plot(summary_gyro['position_bin_gyro'], summary_gyro['upper_bound_gyro'], color='orange', linestyle='--', linewidth=1, label='IQR Upper Bound')
 
@@ -77,7 +79,7 @@ for set_folder in set_folders:
         df = pd.read_csv(file_path)
         plt.plot(df['position'], df['cumulative_pitch'], linewidth=0.5, alpha=0.5)
 
-    plt.plot(summary_pitch_tilt['position_bin_pitch_tilt'], summary_pitch_tilt['mean_pitch'], color='red', linewidth=1, label='Mean Cumulative Pitch')
+    plt.plot(summary_pitch_tilt['position_bin_pitch_tilt'], summary_pitch_tilt['mean_pitch'], color='red', linewidth=2.5, label='Mean Cumulative Pitch')
 
     plt.title(f'{set_name} - Position vs. Cumulative Pitch')
     plt.xlabel('Position')
@@ -93,7 +95,7 @@ for set_folder in set_folders:
         df = pd.read_csv(file_path)
         plt.plot(df['position'], df['tilt'], linewidth=0.5, alpha=0.5)
 
-    plt.plot(summary_pitch_tilt['position_bin_pitch_tilt'], summary_pitch_tilt['mean_tilt'], color='red', linewidth=1, label='Mean Tilt')
+    plt.plot(summary_pitch_tilt['position_bin_pitch_tilt'], summary_pitch_tilt['mean_tilt'], color='red', linewidth=2.5, label='Mean Tilt')
 
     plt.title(f'{set_name} - Position vs. Tilt')
     plt.xlabel('Position')

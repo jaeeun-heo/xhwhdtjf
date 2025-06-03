@@ -8,6 +8,7 @@ from io import BytesIO
 from PIL import Image
 import os
 import glob
+import math
 
 def show_gyro(uploaded_data=None):
 
@@ -170,8 +171,12 @@ def show_gyro(uploaded_data=None):
 
     # 4) 6개 이상 넘으면 이상 예측 구간
     abnormal_bins = []
+    total_files = len(uploaded_data)
+    threshold_ratio = 0.7  # 기준 비율 (70%)
+    threshold_count = math.ceil(total_files * threshold_ratio)  # 보수적으로 올림
+
     for bin_start, count in exceed_counts.items():
-        if count >= 6:
+        if count >= threshold_count:
             abnormal_bins.append((bin_start, count))
 
         # 5) 메시지 출력
